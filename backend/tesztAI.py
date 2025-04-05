@@ -12,3 +12,7 @@ output = query("wow.wav")
 # output = query("good_little_girl.wav")
 
 print(output)
+ 
+
+
+ 
