@@ -8,7 +8,7 @@ import 'package:sound_mind/src/models/registProvider.dart';
 import 'package:sound_mind/src/views/home_screen/components/user_navbar.dart';
 import 'package:sound_mind/src/views/login_screen/login_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../constants/color_list.dart';
 import 'components/xp_bar_chart.dart';
 
@@ -25,6 +25,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   DateTime? _selectedDay;
   String? userXp;
   bool _isLoading = false;
+  final baseUrl = dotenv.env['BASE_URL']!;
 
   @override
   void initState() {
@@ -75,7 +76,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
 
     final String apiUrl =
-        "https://2c67-217-73-170-83.ngrok-free.app/users/$username";
+        "$baseUrl/users/$username";
 
     setState(() {
       _isLoading = true;

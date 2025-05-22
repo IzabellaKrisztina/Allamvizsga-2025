@@ -10,11 +10,15 @@ import 'package:sound_mind/src/models/survey_provider.dart';
 import 'package:sound_mind/src/models/track_provider.dart';
 import 'package:sound_mind/src/views/home_screen/components/wheel.dart';
 import 'package:sound_mind/src/views/splash_screen/splash_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure Flutter binding is initialized
-  final prefs =
+
+  await dotenv.load(fileName: ".env");
+
+    final prefs =
       await SharedPreferences.getInstance(); // Initialize SharedPreferences
 
   runApp(

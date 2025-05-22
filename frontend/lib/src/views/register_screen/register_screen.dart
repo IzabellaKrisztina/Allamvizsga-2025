@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     final registProvider = Provider.of<RegistProvider>(context, listen: false);
+
+    final baseUrl = dotenv.env['BASE_URL']!;
 
     return Scaffold(
       appBar: AppBar(
@@ -172,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   try {
                     var response = await http.post(
                       Uri.parse(
-                          'https://2c67-217-73-170-83.ngrok-free.app/auth/registration'),
+                          '$baseUrl/auth/registration'),
                       headers: {"Content-Type": "application/json"},
                       body: jsonEncode({
                         "username": userName,

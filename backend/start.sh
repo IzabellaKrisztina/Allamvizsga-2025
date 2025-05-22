@@ -10,7 +10,7 @@ fi
 
 echo "Database is up!"
 
-cd models
+# cd models
 echo "Running Alembic migrations..."
 alembic upgrade head
 
@@ -24,4 +24,5 @@ echo "Alembic migrations applied successfully!"
 cd /app
 
 echo "Starting Uvicorn server..."
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+0.0.0.0

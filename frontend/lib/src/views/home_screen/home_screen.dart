@@ -8,6 +8,7 @@ import 'package:sound_mind/src/models/auth_provider.dart';
 import 'package:sound_mind/src/models/track_provider.dart';
 import 'package:sound_mind/src/views/home_screen/components/user_navbar.dart';
 import 'package:sound_mind/src/views/home_screen/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../generated_playlist_screen/generated_playlist.dart';
 import 'components/wheel.dart';
@@ -20,6 +21,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String? userXp;
   bool _isLoading = false;
+  final baseUrl = dotenv.env['BASE_URL']!;
+
 
   @override
   void initState() {
@@ -60,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final String apiUrl =
-        "https://2c67-217-73-170-83.ngrok-free.app/users/$username";
+        "$baseUrl/users/$username";
 
     setState(() {
       _isLoading = true;
@@ -206,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           try {
                             final response = await http.post(
                               Uri.parse(
-                                  "https://2c67-217-73-170-83.ngrok-free.app/mood/suggest_songs"),
+                                  "$baseUrl/mood/suggest_songs"),
                               headers: {
                                 "Content-Type": "application/json",
                               },

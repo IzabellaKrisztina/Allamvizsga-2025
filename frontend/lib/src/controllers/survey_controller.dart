@@ -6,12 +6,16 @@ import 'package:sound_mind/src/models/survey_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:sound_mind/src/views/home_screen/home_screen.dart';
 import 'package:sound_mind/src/views/login_screen/login_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class SurveyController with ChangeNotifier {
   int currentPage = 0;
 
   final int totalPage;
   final SurveyProvider surveyProvider;
+
+  final baseUrl = dotenv.env['BASE_URL']!;
 
   SurveyController(this.totalPage, this.surveyProvider);
 
@@ -47,7 +51,7 @@ class SurveyController with ChangeNotifier {
     try {
       final response = await http.post(
         Uri.parse(
-            "https://2c67-217-73-170-83.ngrok-free.app/mood/analyze_mood"),
+            "$baseUrl/mood/analyze_mood"),
         headers: {
           "Content-Type": "application/json",
         },

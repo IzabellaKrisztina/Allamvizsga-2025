@@ -10,8 +10,11 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - ollama
     environment:
       - DATABASE_URL=postgresql://postgres:soundmind1235@db:5432/soundmind
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
     volumes:
       - .:/app
     networks:
@@ -29,9 +32,21 @@ services:
     networks:
       - app-network
 
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   postgres_data:
+  ollama:
