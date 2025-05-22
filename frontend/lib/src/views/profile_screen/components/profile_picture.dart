@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
   String? _profileImageUrl;
   bool _isLoading = false;
   Uint8List? _decodedBase64Image; // Store decoded image data
+  final baseUrl = dotenv.env['BASE_URL']!;
 
   @override
   void initState() {
@@ -47,7 +49,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
 
     final String token = authProvider.token!;
     final String apiUrl =
-        "https://2c67-217-73-170-83.ngrok-free.app/users/${widget.name}";
+        "$baseUrl/users/${widget.name}";
 
     setState(() {
       _isLoading = true;
@@ -105,7 +107,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
     final String token = authProvider.token!;
     final String username = "your-username"; // Replace dynamically
     final String apiUrl =
-        "https://2c67-217-73-170-83.ngrok-free.app/users/$username";
+        "$baseUrl/users/$username";
 
     setState(() {
       _isLoading = true;

@@ -1,0 +1,65 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environment files
+.env
+.venv/
+env/
+venv/
+
+# VSCode settings (optional)
+.vscode/
+
+# MacOS metadata files
+.DS_Store
+
+# Logs
+*.log
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.egg
+*.egg-info/
+
+# Docker
+*.pid
+*.seed
+*.tar
+*.gz
+*.tgz
+*.bak
+
+# pytest
+.cache/
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# mypy
+.mypy_cache/
+
+# coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+*.whl
+
+# IDEs
+.idea/
+*.swp
+
+# SQLite DBs (if used)
+*.sqlite3
+
+# Node (if you have frontend in the same repo)
+node_modules/

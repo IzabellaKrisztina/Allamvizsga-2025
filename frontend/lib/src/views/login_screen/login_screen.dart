@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -23,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   late String userName;
   late String password;
   bool showSpinner = false;
+  final baseUrl = dotenv.env['BASE_URL']!;
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   try {
                     var response = await http.post(
                       Uri.parse(
-                          'https://2c67-217-73-170-83.ngrok-free.app/auth/login'),
+                          '$baseUrl/auth/login'),
                       headers: {"Content-Type": "application/json"},
                       body: jsonEncode({
                         "username": userName,

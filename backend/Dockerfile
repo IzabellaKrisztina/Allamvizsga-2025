@@ -15,6 +15,8 @@ RUN chmod +x /wait-for-db.sh
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
+ENV PYTHONPATH=/app
+
 EXPOSE 8000
 
 ENTRYPOINT ["/bin/sh", "/start.sh"]
