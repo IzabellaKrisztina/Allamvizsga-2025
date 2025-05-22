@@ -1,8 +1,9 @@
+import os
 from typing import Dict
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.services.music_service import get_music_genre, make_prompt_to_llama, make_prompt_to_llama_for_songs, query_llama2, query_llama2_song
-
+from dotenv import load_dotenv
 import spotipy
 import json
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -10,6 +11,8 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import re
 
 router = APIRouter()
+
+load_dotenv()
 
 class QuestionAnswer(BaseModel):
     question_answer: Dict[str, str]
@@ -23,8 +26,8 @@ def create_songs_prompt(mood: str, artist: str, activity: str):
     return f"Mood: {mood}, Artist: {artist}, Activity: {activity}"
 
 def get_playlist_from_spotify(genre: str):
-    client_id = "266d670acec84058971b6d3ef1e6993e"
-    client_secret = "ef7eca4439d14b8d82db5a5b00a22046"
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
     client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(auth_manager=client_credentials_manager)
@@ -89,8 +92,9 @@ def clean_and_split_response(response: str):
 
 
 def get_song_from_spotify(query: str):
-    client_id = "266d670acec84058971b6d3ef1e6993e"
-    client_secret = "ef7eca4439d14b8d82db5a5b00a22046"
+    client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+    
     client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(auth_manager=client_credentials_manager)
     result = sp.search(q=query, type="track", limit=1)

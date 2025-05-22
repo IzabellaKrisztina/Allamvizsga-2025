@@ -1,9 +1,13 @@
 import requests
 import json
 import re
+from dotenv import load_dotenv
+import os
 
-OLLAMA_HOST = "ollama"
-OLLAMA_PORT = 11434
+load_dotenv()
+
+OLLAMA_HOST = os.getenv("OLLAMA_HOST")
+OLLAMA_PORT = os.getenv("OLLAMA_PORT")
 
 def query_llama2(prompt_dict):
     print("Sending request to Ollama...")

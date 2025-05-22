@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:soundmind1235@db:5432/soundmind")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-OLLAMA_HOST = "ollama"
-OLLAMA_PORT = 11434
+OLLAMA_HOST = os.getenv("OLLAMA_HOST")
+OLLAMA_PORT = os.getenv("OLLAMA_PORT")

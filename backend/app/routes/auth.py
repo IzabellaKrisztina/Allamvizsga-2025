@@ -9,13 +9,16 @@ from pydantic import BaseModel, EmailStr
 from app.models import user, music, playlist
 import app.database as database
 from app.services import crud
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 router = APIRouter()
 
 ## .env fileba 
-SECRET_KEY = "e456561899568d2927c6abe2bc62155216d0847e134e09336a01565de12f3ad5" ##generalva volt, lehet barmi
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 43800
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

@@ -1,13 +1,18 @@
 import requests
+from dotenv import load_dotenv
+import os
 
-API_URL = "https://api-inference.huggingface.co/models/ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition"
-# API_URL = "https://api-inference.huggingface.co/models/openai/whisper-large"   # hangbol szoveget ad vissza
+load_dotenv()
 
-headers = {"Authorization": "Bearer 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"}
+SPEECH_EMOTION_RECOGNITION_URL = os.getenv("SPEECH_EMOTION_RECOGNITION_URL")
+SPEECH_TO_TEXT_URL = os.getenv("SPEECH_TO_TEXT_URL")
+BEARER_TOKEN_HUGGINGFACE = os.getenv("BEARER_TOKEN_HUGGINGFACE")
+
+headers = {"Authorization": "Bearer " + BEARER_TOKEN_HUGGINGFACE}
 
 def query(filename):
     with open(filename, "rb") as f:
-        response = requests.post(API_URL, headers=headers, data=f)
+        response = requests.post(SPEECH_EMOTION_RECOGNITION_URL, headers=headers, data=f)
     return response.json()
 
 output = query("wow.wav")

@@ -1,9 +1,13 @@
 # EGY ZENERE LEHET RAKERESNI
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from dotenv import load_dotenv
+import os
 
-client_id = "266d670acec84058971b6d3ef1e6993e"
-client_secret = "266d670acec84058971b6d3ef1e6993e"
+load_dotenv()
+
+client_id = os.getenv("SPOTIFY_CLIENT_ID")
+client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(auth_manager=client_credentials_manager)
@@ -41,8 +45,8 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 ##spotify developer account info
-client_id = "266d670acec84058971b6d3ef1e6993e"
-client_secret = "ef7eca4439d14b8d82db5a5b00a22046"
+client_id = os.getenv("SPOTIFY_CLIENT_ID")
+client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(auth_manager=client_credentials_manager)
