@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sound_mind/src/models/spotify_authenticate.dart';
 import 'package:sound_mind/src/models/track_provider.dart';
 
 import '../../../constants/color_list.dart';
 import 'music_player_screen.dart';
 
-class GeneratedPlaylist extends StatelessWidget {
+class GeneratedPlaylist extends StatefulWidget {
+  @override
+  State<GeneratedPlaylist> createState() => _GeneratedPlaylistState();
+}
+
+class _GeneratedPlaylistState extends State<GeneratedPlaylist> {
+  @override
+  void initState() {
+    super.initState();
+    authenticateWithSpotify().then((_) {
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor = Color(int.parse('0xFF$COLOR_OLIVINE'));
@@ -78,7 +92,7 @@ class GeneratedPlaylist extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (context) => MusicPlayerScreen(
                               musicList: tracks
-                                  .map<String>((track) => track["spotify_url"])
+                                  .map<String>((track) => track["track_uri"])
                                   .toList(),
                               coverArtistList: tracks
                                   .map<String>(

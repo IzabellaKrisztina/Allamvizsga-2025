@@ -30,6 +30,8 @@ dependencies:
   json_annotation: 4.9.0
   intl: 0.20.0
   dropdown_button2: 2.3.9
+  oauth2_client: ^3.3.0
+  flutter_web_auth: ^0.6.0
 
 
 

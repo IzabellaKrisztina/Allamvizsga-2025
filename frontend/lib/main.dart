@@ -18,7 +18,7 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
 
-    final prefs =
+  final prefs =
       await SharedPreferences.getInstance(); // Initialize SharedPreferences
 
   runApp(

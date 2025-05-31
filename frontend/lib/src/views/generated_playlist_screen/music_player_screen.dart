@@ -1,10 +1,13 @@
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
 import 'package:carousel_slider_plus/carousel_slider_plus.dart';
-
 import 'package:flutter/material.dart';
-
+import 'package:sound_mind/src/models/spotify_authenticate.dart';
 import '../../../constants/color_list.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class MusicPlayerScreen extends StatefulWidget {
   final List<String> musicList;
@@ -31,10 +34,13 @@ class MusicPlayerScreen extends StatefulWidget {
 }
 
 class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
-  late AudioPlayer _audioPlayer;
+  // final _secureStorage = const FlutterSecureStorage();
+  // String? _accessToken;
+
+  // late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
-  Duration _duration = Duration.zero;
-  Duration _position = Duration.zero;
+  // Duration _duration = Duration.zero;
+  // Duration _position = Duration.zero;
   int _currentIndex;
 
   final CarouselSliderController _carouselController =
@@ -45,33 +51,34 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer();
+    // _audioPlayer = AudioPlayer();
     _currentIndex = widget.initialIndex;
-    _audioPlayer.onDurationChanged.listen((d) {
-      setState(() {
-        _duration = d;
-      });
-    });
 
-    _audioPlayer.onPositionChanged.listen((p) {
-      setState(() {
-        _position = p;
-      });
-    });
+    // _audioPlayer.onDurationChanged.listen((d) {
+    //   setState(() {
+    //     _duration = d;
+    //   });
+    // });
 
-    _audioPlayer.onPlayerComplete.listen((_) {
-      setState(() {
-        _isPlaying = false;
-        _position = Duration.zero;
-      });
-    });
+    // _audioPlayer.onPositionChanged.listen((p) {
+    //   setState(() {
+    //     _position = p;
+    //   });
+    // });
+
+    // _audioPlayer.onPlayerComplete.listen((_) {
+    //   setState(() {
+    //     _isPlaying = false;
+    //     _position = Duration.zero;
+    //   });
+    // });
 
     _play();
   }
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
+    // _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -146,29 +153,29 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
             SizedBox(height: 20),
 
             // Song Progress Slider
-            Slider(
-              activeColor: textColor,
-              inactiveColor: lightGreenColor,
-              min: 0,
-              max: _duration.inSeconds.toDouble(),
-              value: _position.inSeconds.toDouble(),
-              onChanged: (value) async {
-                final position = Duration(seconds: value.toInt());
-                await _audioPlayer.seek(position);
-                await _audioPlayer.resume();
-              },
-            ),
+            // Slider(
+            //   activeColor: textColor,
+            //   inactiveColor: lightGreenColor,
+            //   min: 0,
+            //   max: _duration.inSeconds.toDouble(),
+            //   value: _position.inSeconds.toDouble(),
+            //   onChanged: (value) async {
+            //     final position = Duration(seconds: value.toInt());
+            //     await _audioPlayer.seek(position);
+            //     await _audioPlayer.resume();
+            //   },
+            // ),
 
             // Time Labels
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(_formatTime(_position),
-                    style: TextStyle(color: textColor)),
-                Text(_formatTime(_duration),
-                    style: TextStyle(color: textColor)),
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     Text(_formatTime(_position),
+            //         style: TextStyle(color: textColor)),
+            //     Text(_formatTime(_duration),
+            //         style: TextStyle(color: textColor)),
+            //   ],
+            // ),
             SizedBox(height: 20),
 
             // Controls
@@ -180,7 +187,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   icon: Icon(Icons.skip_previous, size: 36, color: textColor),
                 ),
                 IconButton(
-                  onPressed: _isPlaying ? _pause : _play,
+                  onPressed: () async {
+                    if (_isPlaying) {
+                      await _pause();
+                    } else {
+                      await _resume();
+                    }
+                  },
                   icon: Icon(
                       _isPlaying ? Icons.pause_circle : Icons.play_circle,
                       size: 36,
@@ -198,42 +211,201 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
     );
   }
 
-  void _play() async {
-    await _audioPlayer.play(UrlSource(widget.musicList[_currentIndex]));
-    setState(() {
-      _isPlaying = true;
-    });
+  Future<void> _play() async {
+    final accessToken = await getValidAccessToken();
+    if (accessToken == null) {
+      debugPrint('[ERROR] Token missing or expired.');
+      return;
+    }
+
+    final deviceId = await _getActiveDeviceId(accessToken);
+    debugPrint('[DEBUG] Active device ID: $deviceId');
+    if (deviceId == null) {
+      debugPrint(
+          '[ERROR] No active device found. Is Spotify running on a device?');
+      return;
+    }
+
+    await http.put(
+      Uri.parse('https://api.spotify.com/v1/me/player'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'device_ids': [deviceId],
+        'play': true
+      }),
+    );
+
+    final trackUri = widget.musicList[_currentIndex];
+    debugPrint(
+        '[DEBUG] Attempting to play URI: $trackUri on device: $deviceId');
+
+    final response = await http.put(
+      Uri.parse(
+          'https://api.spotify.com/v1/me/player/play?device_id=$deviceId'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'uris': [trackUri]
+      }),
+    );
+
+    if (response.statusCode == 204) {
+      setState(() {
+        _isPlaying = true;
+      });
+      debugPrint('[DEBUG] Playback started');
+    } else {
+      debugPrint(
+          '[ERROR] Failed to start playback: ${response.statusCode} - ${response.body}');
+    }
   }
 
-  void _pause() async {
-    await _audioPlayer.pause();
-    setState(() {
-      _isPlaying = false;
-    });
+  Future<void> _pause() async {
+    final accessToken = await getValidAccessToken();
+    if (accessToken == null) return;
+
+    final deviceId = await _getActiveDeviceId(accessToken);
+    debugPrint('[DEBUG] Active device ID: $deviceId');
+    if (deviceId == null) {
+      debugPrint(
+          '[ERROR] No active device found. Is Spotify running on a device?');
+      return;
+    }
+
+    await http.put(
+      Uri.parse('https://api.spotify.com/v1/me/player'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'device_ids': [deviceId],
+        'play': true
+      }),
+    );
+
+    final response = await http.put(
+      Uri.parse(
+          'https://api.spotify.com/v1/me/player/pause?device_id=$deviceId'),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (response.statusCode == 204 || response.statusCode == 200) {
+      setState(() => _isPlaying = false);
+      debugPrint('[DEBUG] Playback paused');
+    } else {
+      debugPrint(
+          '[ERROR] Pause failed: ${response.statusCode} ${response.body}');
+    }
   }
 
-  void _stop() async {
-    await _audioPlayer.stop();
-    setState(() {
-      _isPlaying = false;
-      _position = Duration.zero;
-    });
+  Future<void> _resume() async {
+    final accessToken = await getValidAccessToken();
+    if (accessToken == null) return;
+
+    final deviceId = await _getActiveDeviceId(accessToken);
+    debugPrint('[DEBUG] Active device ID: $deviceId');
+    if (deviceId == null) {
+      debugPrint(
+          '[ERROR] No active device found. Is Spotify running on a device?');
+      return;
+    }
+
+    await http.put(
+      Uri.parse('https://api.spotify.com/v1/me/player'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'device_ids': [deviceId],
+        'play': true
+      }),
+    );
+
+    final playbackStateResponse = await http.get(
+      Uri.parse('https://api.spotify.com/v1/me/player'),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (playbackStateResponse.statusCode == 200) {
+      final playbackState = jsonDecode(playbackStateResponse.body);
+      if (playbackState['item'] != null) {
+        final response = await http.put(
+          Uri.parse(
+              'https://api.spotify.com/v1/me/player/play?device_id=$deviceId'),
+          headers: {'Authorization': 'Bearer $accessToken'},
+        );
+
+        if (response.statusCode == 204) {
+          setState(() => _isPlaying = true);
+          debugPrint('[DEBUG] Playback resumed');
+        } else {
+          debugPrint(
+              '[ERROR] Resume failed: ${response.statusCode} ${response.body}');
+        }
+      } else {
+        await _play();
+      }
+    } else {
+      debugPrint(
+          '[ERROR] Failed to retrieve playback state: ${playbackStateResponse.statusCode} ${playbackStateResponse.body}');
+    }
   }
 
-  void _next() {
+  Future<void> _next() async {
+    final accessToken = await getValidAccessToken();
+    if (accessToken == null) return;
+
+    await http.post(
+      Uri.parse('https://api.spotify.com/v1/me/player/next'),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
     if (_currentIndex < widget.musicList.length - 1) {
-      _currentIndex++;
+      setState(() => _currentIndex++);
       _carouselController.jumpToPage(_currentIndex);
-      _play();
+      await _play();
     }
   }
 
-  void _prev() {
+  Future<void> _prev() async {
+    final accessToken = await getValidAccessToken();
+    if (accessToken == null) return;
+
+    await http.post(
+      Uri.parse('https://api.spotify.com/v1/me/player/previous'),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
     if (_currentIndex > 0) {
-      _currentIndex--;
+      setState(() => _currentIndex--);
       _carouselController.jumpToPage(_currentIndex);
-      _play();
+      await _play();
     }
+  }
+
+  Future<String?> _getActiveDeviceId(String accessToken) async {
+    final response = await http.get(
+      Uri.parse('https://api.spotify.com/v1/me/player/devices'),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (response.statusCode == 200) {
+      final devices = jsonDecode(response.body)['devices'];
+      for (var d in devices) {
+        if (d['is_active'] == true) return d['id'];
+      }
+      if (devices.isNotEmpty) return devices[0]['id'];
+    }
+
+    debugPrint('[ERROR] Could not fetch devices: ${response.body}');
+    return null;
   }
 
   String _formatTime(Duration position) {
