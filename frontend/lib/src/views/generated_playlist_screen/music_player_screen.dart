@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 
 class MusicPlayerScreen extends StatefulWidget {
   final List<String> musicList;
@@ -39,8 +40,9 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
 
   // late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
-  // Duration _duration = Duration.zero;
-  // Duration _position = Duration.zero;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
+  Timer? _positionTimer;
   int _currentIndex;
 
   final CarouselSliderController _carouselController =
@@ -74,11 +76,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
     // });
 
     _play();
+    _startPositionTimer();
   }
 
   @override
   void dispose() {
     // _audioPlayer.dispose();
+    _positionTimer?.cancel();
     super.dispose();
   }
 
@@ -153,29 +157,38 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
             SizedBox(height: 20),
 
             // Song Progress Slider
-            // Slider(
-            //   activeColor: textColor,
-            //   inactiveColor: lightGreenColor,
-            //   min: 0,
-            //   max: _duration.inSeconds.toDouble(),
-            //   value: _position.inSeconds.toDouble(),
-            //   onChanged: (value) async {
-            //     final position = Duration(seconds: value.toInt());
-            //     await _audioPlayer.seek(position);
-            //     await _audioPlayer.resume();
-            //   },
-            // ),
+            Slider(
+              activeColor: textColor,
+              inactiveColor: lightGreenColor,
+              min: 0,
+              max: _duration.inSeconds.toDouble(),
+              value:
+                  _position.inSeconds.clamp(0, _duration.inSeconds).toDouble(),
+              onChanged: (value) async {
+                final newPosition = Duration(seconds: value.toInt());
+                final accessToken = await getValidAccessToken();
+                if (accessToken == null) return;
+
+                await http.put(
+                  Uri.parse(
+                      'https://api.spotify.com/v1/me/player/seek?position_ms=${newPosition.inMilliseconds}'),
+                  headers: {'Authorization': 'Bearer $accessToken'},
+                );
+
+                setState(() => _position = newPosition);
+              },
+            ),
 
             // Time Labels
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     Text(_formatTime(_position),
-            //         style: TextStyle(color: textColor)),
-            //     Text(_formatTime(_duration),
-            //         style: TextStyle(color: textColor)),
-            //   ],
-            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(_formatTime(_position),
+                    style: TextStyle(color: textColor)),
+                Text(_formatTime(_duration),
+                    style: TextStyle(color: textColor)),
+              ],
+            ),
             SizedBox(height: 20),
 
             // Controls
@@ -316,18 +329,6 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
       return;
     }
 
-    await http.put(
-      Uri.parse('https://api.spotify.com/v1/me/player'),
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'device_ids': [deviceId],
-        'play': true
-      }),
-    );
-
     final playbackStateResponse = await http.get(
       Uri.parse('https://api.spotify.com/v1/me/player'),
       headers: {'Authorization': 'Bearer $accessToken'},
@@ -336,15 +337,23 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
     if (playbackStateResponse.statusCode == 200) {
       final playbackState = jsonDecode(playbackStateResponse.body);
       if (playbackState['item'] != null) {
+        final trackUri = widget.musicList[_currentIndex];
+
         final response = await http.put(
           Uri.parse(
               'https://api.spotify.com/v1/me/player/play?device_id=$deviceId'),
-          headers: {'Authorization': 'Bearer $accessToken'},
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'uris': [trackUri]
+          }),
         );
 
         if (response.statusCode == 204) {
           setState(() => _isPlaying = true);
-          debugPrint('[DEBUG] Playback resumed');
+          debugPrint('[DEBUG] Playback resumed (replayed)');
         } else {
           debugPrint(
               '[ERROR] Resume failed: ${response.statusCode} ${response.body}');
@@ -414,5 +423,31 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
     final minutes = twoDigits(position.inMinutes.remainder(60));
     final seconds = twoDigits(position.inSeconds.remainder(60));
     return [if (position.inHours > 0) hours, minutes, seconds].join(':');
+  }
+
+  void _startPositionTimer() {
+    _positionTimer = Timer.periodic(Duration(seconds: 1), (_) async {
+      final accessToken = await getValidAccessToken();
+      if (accessToken == null) return;
+
+      final response = await http.get(
+        Uri.parse('https://api.spotify.com/v1/me/player'),
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final progressMs = data['progress_ms'] ?? 0;
+        final durationMs = data['item']?['duration_ms'] ?? 0;
+
+        setState(() {
+          _position = Duration(milliseconds: progressMs);
+          _duration = Duration(milliseconds: durationMs);
+        });
+      } else {
+        debugPrint(
+            '[ERROR] Failed to fetch playback state: ${response.statusCode}');
+      }
+    });
   }
 }

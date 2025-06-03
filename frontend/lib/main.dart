@@ -39,7 +39,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => PlaylistProvider()),
         ChangeNotifierProvider(create: (context) => RegistProvider()),
         ChangeNotifierProvider(create: (context) => TrackProvider()),
-      ],
+      ], 
       child: const MyApp(),
     ),
   );
