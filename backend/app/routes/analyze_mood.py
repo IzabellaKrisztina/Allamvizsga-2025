@@ -1,14 +1,14 @@
 import os
-from typing import Dict
-from fastapi import APIRouter, HTTPException
+from typing import Dict, Optional
+from fastapi import APIRouter, HTTPException, File, UploadFile
 from pydantic import BaseModel
-from app.services.music_service import get_music_genre, make_prompt_to_llama, make_prompt_to_llama_for_songs, query_llama2, query_llama2_song
+from app.services.music_service import get_music_genre, make_prompt_to_llama, make_prompt_to_llama_for_songs, make_prompt_to_llama_for_songs_with_mood_and_genre, predict_emotion_from_audio, query_llama2, query_llama2_song
 from dotenv import load_dotenv
 import spotipy
 import json
 from spotipy.oauth2 import SpotifyClientCredentials
-
 import re
+import shutil
 
 router = APIRouter()
 
@@ -21,6 +21,8 @@ class SongRequest(BaseModel):
     mood: str
     artist: str
     activity: str
+
+user_preferences: Optional[QuestionAnswer] = None
 
 def create_songs_prompt(mood: str, artist: str, activity: str):
     return f"Mood: {mood}, Artist: {artist}, Activity: {activity}"
@@ -58,10 +60,13 @@ def get_playlist_from_spotify(genre: str):
     return {"playlists": playlists}
 
 @router.post("/analyze_mood")
-async def analyze_mood(preferences: QuestionAnswer):
+async def analyze_mood(preferences: QuestionAnswer, user_id: str):
     try:
         genre = get_music_genre(preferences.question_answer)
         print(genre)
+
+        global user_preferences
+        user_preferences = preferences
 
         playlist = get_playlist_from_spotify(genre)
 
@@ -141,5 +146,39 @@ async def suggest_songs(request: SongRequest):
         songs = [song for song in songs if song is not None]
         return {"songs": songs}
         
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {e}")
+
+@router.post("/analyze_audio_mood")
+async def analyze_audio_mood(file: UploadFile = File(...)):
+    try:     
+        global user_preferences
+        if user_preferences is None:
+            raise HTTPException(status_code=400, detail="User preferences not set.")
+       
+        temp_file_path = f"temp_{file.filename}"
+        with open(temp_file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        mood = predict_emotion_from_audio(temp_file_path)
+        os.remove(temp_file_path)
+
+        genre = get_music_genre(user_preferences.question_answer)
+        print(genre)
+
+        prompt_dict = make_prompt_to_llama_for_songs_with_mood_and_genre(mood, genre)
+        response = query_llama2_song(prompt_dict)
+        cleaned_response = clean_and_split_response(response)
+
+        songs = []
+        for song in cleaned_response:
+            if isinstance(song, list) and len(song) == 2:
+                query = f"{song[0]} {song[1]}"
+                spotify_song = get_song_from_spotify(query)
+                if spotify_song:
+                    songs.append(spotify_song)
+
+        return {"mood": mood, "songs": songs}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {e}")

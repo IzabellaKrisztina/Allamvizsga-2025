@@ -10,3 +10,7 @@ passlib
 pyjwt
 pydantic[email]
 pydantic
+transformers
+torchaudio
+requests
+python-multipart
