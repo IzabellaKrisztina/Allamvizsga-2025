@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:sound_mind/src/views/home_screen/components/recording_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -22,7 +22,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String? userXp;
   bool _isLoading = false;
   final baseUrl = dotenv.env['BASE_URL']!;
-
 
   @override
   void initState() {
@@ -62,8 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    final String apiUrl =
-        "$baseUrl/users/$username";
+    final String apiUrl = "$baseUrl/users/$username";
 
     setState(() {
       _isLoading = true;
@@ -154,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 10),
               // ✅ "Generate New Playlist" Button
               Padding(
-                padding: EdgeInsets.all(5),
+                padding: EdgeInsets.all(1),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -208,8 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           try {
                             final response = await http.post(
-                              Uri.parse(
-                                  "$baseUrl/mood/suggest_songs"),
+                              Uri.parse("$baseUrl/mood/suggest_songs"),
                               headers: {
                                 "Content-Type": "application/json",
                               },
@@ -257,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                            EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -273,18 +270,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     //const SizedBox(height: 10),
+                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) => RecordingDialog(),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         // padding:
                         //     EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        padding: EdgeInsets.all(20),
+                        padding: EdgeInsets.all(15),
                         shape: CircleBorder(),
                         backgroundColor: buttonColor,
                       ),
                       child: Icon(
                         Icons.mic, // Use the microphone icon
-                        size: 24,
+                        size: 27,
                         color: lightGreenColor,
                       ),
                     ),

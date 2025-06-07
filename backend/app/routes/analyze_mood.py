@@ -9,6 +9,7 @@ import json
 from spotipy.oauth2 import SpotifyClientCredentials
 import re
 import shutil
+import wave
 
 router = APIRouter()
 
@@ -149,6 +150,17 @@ async def suggest_songs(request: SongRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {e}")
 
+
+def is_valid_audio(file_path: str) -> bool:
+    try:
+        with wave.open(file_path, 'rb') as wf:
+            frames = wf.getnframes()
+            rate = wf.getframerate()
+            duration = frames / float(rate)
+            return duration > 0.5  # Require >0.5 seconds audio
+    except wave.Error:
+        return False
+
 @router.post("/analyze_audio_mood")
 async def analyze_audio_mood(file: UploadFile = File(...)):
     try:     
@@ -157,6 +169,12 @@ async def analyze_audio_mood(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="User preferences not set.")
        
         temp_file_path = f"temp_{file.filename}"
+
+        if not is_valid_audio(temp_file_path):
+            os.remove(temp_file_path)
+            raise HTTPException(status_code=400, detail="Audio file is empty or too short.")
+
+
         with open(temp_file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
@@ -169,16 +187,26 @@ async def analyze_audio_mood(file: UploadFile = File(...)):
         prompt_dict = make_prompt_to_llama_for_songs_with_mood_and_genre(mood, genre)
         response = query_llama2_song(prompt_dict)
         cleaned_response = clean_and_split_response(response)
-
+    
         songs = []
+
         for song in cleaned_response:
+            # spotify_song = get_song_from_spotify(song)
+            # songs.append(spotify_song)
             if isinstance(song, list) and len(song) == 2:
-                query = f"{song[0]} {song[1]}"
+                query = f"{song[0]} {song[1]}"  # title + artist
                 spotify_song = get_song_from_spotify(query)
                 if spotify_song:
                     songs.append(spotify_song)
+                else:
+                    print(f"❌ Song not found on Spotify for query: {query}")
+            else:
+                print(f"⚠️ Skipped malformed song entry: {song}")
 
-        return {"mood": mood, "songs": songs}
+        songs = [song for song in songs if song is not None]
+        return {"songs": songs}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {e}")
+        print("❌ Exception during mood analysis:", str(e))
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+

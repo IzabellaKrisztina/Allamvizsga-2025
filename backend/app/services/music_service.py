@@ -82,26 +82,31 @@ def make_prompt_to_llama_for_songs_with_mood_and_genre(mood, genre):
     return prompt_dict
 
 def predict_emotion_from_audio(file_path: str) -> str:
-    """
-    Predicts the emotion from an audio file using the specified Hugging Face model.
-    """
     try:
         api_url = os.getenv("SPEECH_EMOTION_RECOGNITION_URL")
         api_token = os.getenv("BEARER_TOKEN_HUGGINGFACE")
+
         headers = {
             "Authorization": f"Bearer {api_token}"
         }
 
         with open(file_path, "rb") as f:
             response = requests.post(api_url, headers=headers, data=f)
+
+        try:
             response.raise_for_status()
-            result = response.json()
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"HuggingFace API error: {response.text}")
+
+        result = response.json()
+        print("🔍 Raw HuggingFace Response:", result)
 
         if isinstance(result, list) and result:
             top_prediction = max(result, key=lambda x: x.get('score', 0))
-            return top_prediction.get('label', '').lower()
+            emotion = top_prediction.get('label', '').lower()
+            print("🎤 Predicted Emotion:", emotion)
+            return emotion
         else:
-            raise ValueError("No emotion detected or unexpected response format.")
-
+            raise ValueError("Empty or invalid response from model.")
     except Exception as e:
         raise Exception(f"Error in emotion prediction: {e}")
