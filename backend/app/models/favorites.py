@@ -1,8 +1,13 @@
-from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 from app.models.base import Base
 
-favorites = Table(
-    'favorites', Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
-    Column('music_id', Integer, ForeignKey('musics.id'), primary_key=True)
-)
+
+class Favorite(Base):
+    __tablename__ = 'favorites'
+
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    music_id = Column(Integer, ForeignKey('musics.id'), primary_key=True)
+
+    user = relationship("User", back_populates="favorite_musics_assoc")
+    music = relationship("Music", back_populates="favorited_by_assoc")

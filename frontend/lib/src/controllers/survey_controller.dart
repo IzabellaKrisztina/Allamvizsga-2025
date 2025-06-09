@@ -7,16 +7,13 @@ import 'package:http/http.dart' as http;
 import 'package:sound_mind/src/views/home_screen/home_screen.dart';
 import 'package:sound_mind/src/views/login_screen/login_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
+import 'package:sound_mind/src/models/auth_provider.dart';
 
 class SurveyController with ChangeNotifier {
   int currentPage = 0;
-
   final int totalPage;
   final SurveyProvider surveyProvider;
-
   final baseUrl = dotenv.env['BASE_URL']!;
-
   SurveyController(this.totalPage, this.surveyProvider);
 
   void nextPage() {
@@ -41,6 +38,8 @@ class SurveyController with ChangeNotifier {
   String? getAnswer(String question) => surveyProvider.getAnswer(question);
 
   void submitSurvey(BuildContext context) async {
+    // final token = Provider.of<AuthProvider>(context, listen: false).token;
+
     final Map<String, dynamic> answers = surveyProvider.getAllAnswers();
     final Map<String, dynamic> formattedData = {
       "question_answer": answers,
@@ -50,10 +49,10 @@ class SurveyController with ChangeNotifier {
 
     try {
       final response = await http.post(
-        Uri.parse(
-            "$baseUrl/mood/analyze_mood"),
+        Uri.parse("$baseUrl/mood/analyze_mood"),
         headers: {
           "Content-Type": "application/json",
+          // "Authorization": "Bearer $token",
         },
         body: jsonString,
       );
@@ -87,83 +86,8 @@ class SurveyController with ChangeNotifier {
     if (!context.mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => LoginScreen(),
+        builder: (context) => HomeScreen(),
       ),
     );
   }
-
-  // void submitSurvey(BuildContext context) async {
-  //   final Map<String, dynamic> answers = surveyProvider.getAllAnswers();
-  //   final Map<String, dynamic> formattedData = {
-  //     "question_answer": answers,
-  //   };
-
-  //   final String jsonString = jsonEncode(formattedData);
-
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse(
-  //           "https://2c67-217-73-170-83.ngrok-free.app/mood/analyze_mood"),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: jsonString,
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       // Successfully received a response
-
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) {
-  //           return AlertDialog(
-  //             title: const Text("Success"),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () => Navigator.pop(context),
-  //                 child: const Text("OK"),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     } else {
-  //       throw Exception("Failed to submit survey: ${response.statusCode}");
-  //     }
-  //   } catch (error) {
-  //     showDialog(
-  //       context: context,
-  //       builder: (context) {
-  //         return AlertDialog(
-  //           title: const Text("Error"),
-  //           content: Text("Something went wrong: $error"),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(context),
-  //               child: const Text("OK"),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-  //   }
-
-  //   // showDialog(
-  //   //   context: context,
-  //   //   builder: (context) {
-  //   //     return AlertDialog(
-  //   //       title: const Text("Survey Data"),
-  //   //       content: SingleChildScrollView(child: Text(jsonString)),
-  //   //       actions: [
-  //   //         TextButton(
-  //   //           onPressed: () {
-  //   //             Navigator.pop(context);
-  //   //           },
-  //   //           child: const Text("OK"),
-  //   //         ),
-  //   //       ],
-  //   //     );
-  //   //   },
-  //   // );
-  // }
 }

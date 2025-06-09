@@ -3,7 +3,6 @@ from io import BytesIO
 from fastapi import APIRouter, HTTPException, Depends, Body
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-import jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel, EmailStr
 from app.models import user, music, playlist
@@ -11,6 +10,11 @@ import app.database as database
 from app.services import crud
 from dotenv import load_dotenv
 import os
+from typing import Dict, Any, Optional
+from fastapi.security import HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+import jwt
+
 
 load_dotenv()
 router = APIRouter()
@@ -29,7 +33,8 @@ class RegistrationRequest(BaseModel):
     username: str
     email: EmailStr
     password: str
-    profile_picture: str
+    profile_picture: Optional[str] = None
+
 
 # sajatos token generalasa + validalas
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -48,6 +53,7 @@ def hash_password(password: str) -> str:
 def decode_base64_image(base64_string: str) -> bytes:
     img_data = base64.b64decode(base64_string)
     return BytesIO(img_data)
+
 
 @router.post("/login")
 def login(login_request: LoginRequest, db: Session = Depends(database.get_db)):
@@ -86,3 +92,5 @@ def register(request: RegistrationRequest, db: Session = Depends(database.get_db
     db.refresh(new_user)
 
     return {"message": "User registered successfully", "user_id": new_user.id}
+
+

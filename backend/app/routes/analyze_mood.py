@@ -10,10 +10,22 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import re
 import shutil
 import wave
+from app.services import crud
+from app.models import user
+from app.database import get_db
+from sqlalchemy.orm import Session
+from fastapi import Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import jwt, JWTError
 
 router = APIRouter()
 
 load_dotenv()
+
+# security  = HTTPBearer()
+
+# SECRET_KEY = os.getenv("SECRET_KEY")
+# ALGORITHM = os.getenv("ALGORITHM")
 
 class QuestionAnswer(BaseModel):
     question_answer: Dict[str, str]
@@ -23,7 +35,20 @@ class SongRequest(BaseModel):
     artist: str
     activity: str
 
-user_preferences: Optional[QuestionAnswer] = None
+# def get_current_user(token: str, db: Session) -> user.User:
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         username = payload.get("sub")
+#         if username is None:
+#             raise Exception("Username not in token")
+        
+#         user = db.query(user.User).filter(user.User.username == username).first()
+#         if not user:
+#             raise Exception("User not found")
+        
+#         return user
+#     except JWTError as e:
+#         raise HTTPException(status_code=403, detail="Invalid token")
 
 def create_songs_prompt(mood: str, artist: str, activity: str):
     return f"Mood: {mood}, Artist: {artist}, Activity: {activity}"
@@ -61,14 +86,22 @@ def get_playlist_from_spotify(genre: str):
     return {"playlists": playlists}
 
 @router.post("/analyze_mood")
-async def analyze_mood(preferences: QuestionAnswer, user_id: str):
+# async def analyze_mood(preferences: QuestionAnswer, credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
+async def analyze_mood(preferences: QuestionAnswer):
     try:
+        # token = credentials.credentials
+        # user_obj = get_current_user(token, db)
+
+        # 2. Save preferences in DB
+        # crud.create_or_update_user_preferences(
+        #     db=db,
+        #     user_id=user_obj.id,
+        #     preferences=preferences.question_answer
+        # )
+        
+        # 3. Generate music genre and playlist
         genre = get_music_genre(preferences.question_answer)
         print(genre)
-
-        global user_preferences
-        user_preferences = preferences
-
         playlist = get_playlist_from_spotify(genre)
 
         # return {"recommended_genre": genre}
@@ -161,52 +194,52 @@ def is_valid_audio(file_path: str) -> bool:
     except wave.Error:
         return False
 
-@router.post("/analyze_audio_mood")
-async def analyze_audio_mood(file: UploadFile = File(...)):
-    try:     
-        global user_preferences
-        if user_preferences is None:
-            raise HTTPException(status_code=400, detail="User preferences not set.")
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# @router.post("/analyze_audio_mood")
+# async def analyze_audio_mood(file: UploadFile = File(...)):
+#     try:     
+#         # global user_preferences
+#         # if user_preferences is None:
+#         #     raise HTTPException(status_code=400, detail="User preferences not set.")
        
-        temp_file_path = f"temp_{file.filename}"
+#         temp_file_path = f"temp_{file.filename}"
 
-        if not is_valid_audio(temp_file_path):
-            os.remove(temp_file_path)
-            raise HTTPException(status_code=400, detail="Audio file is empty or too short.")
+#         with open(temp_file_path, "wb") as buffer:
+#             shutil.copyfileobj(file.file, buffer)
 
+#         if not is_valid_audio(temp_file_path):
+#             os.remove(temp_file_path)
+#             raise HTTPException(status_code=400, detail="Audio file is empty or too short.")
 
-        with open(temp_file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+#         mood = predict_emotion_from_audio(temp_file_path)
+#         os.remove(temp_file_path)
 
-        mood = predict_emotion_from_audio(temp_file_path)
-        os.remove(temp_file_path)
+#         genre = get_music_genre(user_preferences.question_answer)
+#         print(genre)
 
-        genre = get_music_genre(user_preferences.question_answer)
-        print(genre)
-
-        prompt_dict = make_prompt_to_llama_for_songs_with_mood_and_genre(mood, genre)
-        response = query_llama2_song(prompt_dict)
-        cleaned_response = clean_and_split_response(response)
+#         prompt_dict = make_prompt_to_llama_for_songs_with_mood_and_genre(mood, genre)
+#         response = query_llama2_song(prompt_dict)
+#         cleaned_response = clean_and_split_response(response)
     
-        songs = []
+#         songs = []
 
-        for song in cleaned_response:
-            # spotify_song = get_song_from_spotify(song)
-            # songs.append(spotify_song)
-            if isinstance(song, list) and len(song) == 2:
-                query = f"{song[0]} {song[1]}"  # title + artist
-                spotify_song = get_song_from_spotify(query)
-                if spotify_song:
-                    songs.append(spotify_song)
-                else:
-                    print(f"❌ Song not found on Spotify for query: {query}")
-            else:
-                print(f"⚠️ Skipped malformed song entry: {song}")
+#         for song in cleaned_response:
+#             # spotify_song = get_song_from_spotify(song)
+#             # songs.append(spotify_song)
+#             if isinstance(song, list) and len(song) == 2:
+#                 query = f"{song[0]} {song[1]}"  # title + artist
+#                 spotify_song = get_song_from_spotify(query)
+#                 if spotify_song:
+#                     songs.append(spotify_song)
+#                 else:
+#                     print(f"❌ Song not found on Spotify for query: {query}")
+#             else:
+#                 print(f"⚠️ Skipped malformed song entry: {song}")
 
-        songs = [song for song in songs if song is not None]
-        return {"songs": songs}
+#         songs = [song for song in songs if song is not None]
+#         return {"songs": songs}
 
-    except Exception as e:
-        print("❌ Exception during mood analysis:", str(e))
-        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+#     except Exception as e:
+#         print("❌ Exception during mood analysis:", str(e))
+#         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 

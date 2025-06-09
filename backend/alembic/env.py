@@ -13,9 +13,13 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'app')))
 
 
-from app.models.music import Music
-from app.models.playlist import Playlist
-from app.models.user import User
+# from app.models.music import Music
+# from app.models.playlist import Playlist
+# from app.models.user import User
+# from models.user_preference import UserPreference
+# from app.models.daily_listening import DailyListening
+# from app.models.favorites import Favorite
+import app.models 
 from app.models.base import Base
 
 # this is the Alembic Config object, which provides

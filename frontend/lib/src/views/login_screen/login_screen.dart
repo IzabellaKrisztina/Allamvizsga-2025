@@ -131,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (!context.mounted) return;
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => HomeScreen(),
+                          builder: (context) => SurveyScreen(),
                         ),
                       );
                     } else {

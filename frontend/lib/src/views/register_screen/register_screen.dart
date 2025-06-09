@@ -9,7 +9,7 @@ import 'package:sound_mind/src/models/auth_provider.dart';
 import 'package:sound_mind/src/models/registProvider.dart';
 import 'package:sound_mind/src/views/home_screen/home_screen.dart';
 import 'package:sound_mind/src/views/register_screen/components/register_button.dart';
-import 'package:sound_mind/src/views/survey_screen/survey_screen.dart';
+import 'package:sound_mind/src/views/login_screen/login_screen.dart';
 
 import '../../../constants/color_list.dart';
 import '../../../constants/text_field_decoration.dart';
@@ -174,8 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   try {
                     var response = await http.post(
-                      Uri.parse(
-                          '$baseUrl/auth/registration'),
+                      Uri.parse('$baseUrl/auth/registration'),
                       headers: {"Content-Type": "application/json"},
                       body: jsonEncode({
                         "username": userName,
@@ -201,7 +200,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       if (!context.mounted) return;
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => SurveyScreen(),
+                          builder: (context) => LoginScreen(),
                         ),
                       );
                     } else {
