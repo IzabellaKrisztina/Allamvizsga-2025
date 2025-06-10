@@ -65,25 +65,12 @@ def get_playlist_from_spotify(genre: str):
     return {"playlists": playlists}
 
 @router.post("/analyze_mood")
-# async def analyze_mood(preferences: QuestionAnswer, credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
 async def analyze_mood(preferences: QuestionAnswer):
     try:
-        # token = credentials.credentials
-        # user_obj = get_current_user(token, db)
-
-        # 2. Save preferences in DB
-        # crud.create_or_update_user_preferences(
-        #     db=db,
-        #     user_id=user_obj.id,
-        #     preferences=preferences.question_answer
-        # )
-        
-        # 3. Generate music genre and playlist
         genre = get_music_genre(preferences.question_answer)
         print(genre)
         playlist = get_playlist_from_spotify(genre)
 
-        # return {"recommended_genre": genre}
         return playlist
 
     except Exception as e:

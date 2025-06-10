@@ -15,7 +15,8 @@ BEARER_TOKEN_HUGGINGFACE = os.getenv("BEARER_TOKEN_HUGGINGFACE")
 
 def query_llama2(prompt_dict):
     print("Sending request to Ollama...")
-    url = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}/api/generate"
+    # url = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}/api/generate"
+    url = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}/api/chat"
     headers = {"Content-Type": "application/json"}
     try:
         response = requests.post(url, json=prompt_dict, headers=headers)
