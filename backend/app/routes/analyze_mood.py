@@ -2,7 +2,7 @@ import os
 from typing import Dict, Optional
 from fastapi import APIRouter, HTTPException, File, UploadFile
 from pydantic import BaseModel
-from app.services.music_service import get_music_genre, make_prompt_to_llama, make_prompt_to_llama_for_songs, make_prompt_to_llama_for_songs_with_mood_and_genre, predict_emotion_from_audio, query_llama2, query_llama2_song
+from app.services.music_service import get_music_genre, make_prompt_to_llama, make_prompt_to_llama_for_songs, make_prompt_to_llama_for_songs_with_mood, query_llama2, query_llama2_song
 from dotenv import load_dotenv
 import spotipy
 import json
@@ -13,19 +13,12 @@ import wave
 from app.services import crud
 from app.models import user
 from app.database import get_db
-from sqlalchemy.orm import Session
-from fastapi import Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt, JWTError
+import traceback
+import requests
 
 router = APIRouter()
 
 load_dotenv()
-
-# security  = HTTPBearer()
-
-# SECRET_KEY = os.getenv("SECRET_KEY")
-# ALGORITHM = os.getenv("ALGORITHM")
 
 class QuestionAnswer(BaseModel):
     question_answer: Dict[str, str]
@@ -35,20 +28,6 @@ class SongRequest(BaseModel):
     artist: str
     activity: str
 
-# def get_current_user(token: str, db: Session) -> user.User:
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         username = payload.get("sub")
-#         if username is None:
-#             raise Exception("Username not in token")
-        
-#         user = db.query(user.User).filter(user.User.username == username).first()
-#         if not user:
-#             raise Exception("User not found")
-        
-#         return user
-#     except JWTError as e:
-#         raise HTTPException(status_code=403, detail="Invalid token")
 
 def create_songs_prompt(mood: str, artist: str, activity: str):
     return f"Mood: {mood}, Artist: {artist}, Activity: {activity}"
@@ -184,62 +163,78 @@ async def suggest_songs(request: SongRequest):
         raise HTTPException(status_code=500, detail=f"Error: {e}")
 
 
-def is_valid_audio(file_path: str) -> bool:
-    try:
-        with wave.open(file_path, 'rb') as wf:
-            frames = wf.getnframes()
-            rate = wf.getframerate()
-            duration = frames / float(rate)
-            return duration > 0.5  # Require >0.5 seconds audio
-    except wave.Error:
-        return False
+@router.post("/analyze_audio_mood")
+async def analyze_audio_mood(file: UploadFile = File(...)):
+    MOOD_MODEL_SERVICE_URL = os.getenv("MOOD_MODEL_SERVICE_URL")
 
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# @router.post("/analyze_audio_mood")
-# async def analyze_audio_mood(file: UploadFile = File(...)):
-#     try:     
-#         # global user_preferences
-#         # if user_preferences is None:
-#         #     raise HTTPException(status_code=400, detail="User preferences not set.")
-       
-#         temp_file_path = f"temp_{file.filename}"
+    print(f"📥 Received file: {file.filename}, content_type: {file.content_type}")
+    temp_file_path = f"temp_{file.filename}"
 
-#         with open(temp_file_path, "wb") as buffer:
-#             shutil.copyfileobj(file.file, buffer)
+    try:     
+        # Step 1: Save uploaded file
+        try:
+            with open(temp_file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+            print("✅ File saved successfully.")
+        except Exception as e:
+            raise Exception(f"Error saving uploaded audio file: {str(e)}")
 
-#         if not is_valid_audio(temp_file_path):
-#             os.remove(temp_file_path)
-#             raise HTTPException(status_code=400, detail="Audio file is empty or too short.")
+        # Step 2+3: Send to model service and get emotion
+        try:
+            with open(temp_file_path, "rb") as audio_file:
+                files = {"file": (file.filename, audio_file, file.content_type)}
+                response = requests.post(MOOD_MODEL_SERVICE_URL, files=files)
 
-#         mood = predict_emotion_from_audio(temp_file_path)
-#         os.remove(temp_file_path)
+            if response.status_code != 200:
+                raise Exception(f"Model service returned error: {response.status_code} - {response.text}")
 
-#         genre = get_music_genre(user_preferences.question_answer)
-#         print(genre)
+            mood = response.json().get("emotion")
+            if not mood:
+                raise Exception("No emotion returned from model service.")
+            
+            print(f"🎧 Predicted mood from model service: {mood}")
 
-#         prompt_dict = make_prompt_to_llama_for_songs_with_mood_and_genre(mood, genre)
-#         response = query_llama2_song(prompt_dict)
-#         cleaned_response = clean_and_split_response(response)
+        except Exception as e:
+            raise Exception(f"Error communicating with model service: {str(e)}")
+        
+        # Clean up audio file
+        try:
+            os.remove(temp_file_path)
+            print("🧹 Temporary audio file removed.")
+        except Exception as e:
+            print(f"⚠️ Failed to remove temporary file: {str(e)}")
+
+        
+        # Step 4: LLM prompt + response
+        try:
+            prompt_dict = make_prompt_to_llama_for_songs_with_mood(mood)
+            response = query_llama2_song(prompt_dict)
+            cleaned_response = clean_and_split_response(response)
+            print(f"📝 Cleaned response: {cleaned_response}")
+        except Exception as e:
+            raise Exception(f"Error generating or parsing LLM response: {str(e)}")
     
-#         songs = []
+        # Step 5: Parse songs and query Spotify
+        songs = []
+        try:
+            for song in cleaned_response:
+                if isinstance(song, list) and len(song) == 2:
+                    query = f"{song[0]} {song[1]}"
+                    spotify_song = get_song_from_spotify(query)
+                    if spotify_song:
+                        songs.append(spotify_song)
+                    else:
+                        print(f"❌ Song not found on Spotify for query: {query}")
+                else:
+                    print(f"⚠️ Skipped malformed song entry: {song}")
+            songs = [song for song in songs if song is not None]
+        except Exception as e:
+            raise Exception(f"Error fetching songs from Spotify: {str(e)}")
 
-#         for song in cleaned_response:
-#             # spotify_song = get_song_from_spotify(song)
-#             # songs.append(spotify_song)
-#             if isinstance(song, list) and len(song) == 2:
-#                 query = f"{song[0]} {song[1]}"  # title + artist
-#                 spotify_song = get_song_from_spotify(query)
-#                 if spotify_song:
-#                     songs.append(spotify_song)
-#                 else:
-#                     print(f"❌ Song not found on Spotify for query: {query}")
-#             else:
-#                 print(f"⚠️ Skipped malformed song entry: {song}")
+        return {"songs": songs}
 
-#         songs = [song for song in songs if song is not None]
-#         return {"songs": songs}
-
-#     except Exception as e:
-#         print("❌ Exception during mood analysis:", str(e))
-#         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+    except Exception as e:
+        print("❌ Exception during mood analysis:", str(e))
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 

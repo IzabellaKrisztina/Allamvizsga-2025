@@ -15,3 +15,4 @@ torchaudio
 requests
 python-multipart
 python-jose[cryptography]
+pydub

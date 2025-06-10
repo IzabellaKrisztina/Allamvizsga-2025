@@ -1,5 +1,5 @@
 from logging.config import fileConfig
-
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
@@ -8,17 +8,13 @@ from alembic import context
 import sys
 import os
 
+load_dotenv()
+
 # sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 # sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'app')))
 
 
-# from app.models.music import Music
-# from app.models.playlist import Playlist
-# from app.models.user import User
-# from models.user_preference import UserPreference
-# from app.models.daily_listening import DailyListening
-# from app.models.favorites import Favorite
 import app.models 
 from app.models.base import Base
 
@@ -55,7 +51,8 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
+
     context.configure(
         url=url,
         target_metadata=target_metadata,

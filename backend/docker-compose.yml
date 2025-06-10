@@ -11,12 +11,15 @@ services:
     depends_on:
       - db
       - ollama
+      - mood_model_service
     environment:
       - DATABASE_URL=postgresql://postgres:soundmind1235@db:5432/soundmind
       - OLLAMA_HOST=ollama
       - OLLAMA_PORT=11434
+      - MOOD_MODEL_SERVICE_URL=http://mood_model_service:8001/infer
     volumes:
       - .:/app
+      # - ./app:/app 
     networks:
       - app-network
 
@@ -40,6 +43,15 @@ services:
       - ollama:/root/.ollama
     environment:
       - OLLAMA_HOST=0.0.0.0
+    networks:
+      - app-network
+
+  mood_model_service:
+    build:
+      context: ./mood_model_service
+    container_name: mood_model_service
+    ports:
+      - "8001:8001"
     networks:
       - app-network
 

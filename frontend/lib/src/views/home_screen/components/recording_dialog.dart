@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:sound_mind/src/models/track_provider.dart';
+import 'package:sound_mind/src/views/generated_playlist_screen/generated_playlist.dart';
 
 class RecordingDialog extends StatefulWidget {
   @override
@@ -95,10 +99,8 @@ class _RecordingDialogState extends State<RecordingDialog> {
     final recordedFile = File(_filePath!);
 
     try {
-      // Rename the file
       await recordedFile.rename(newPath);
 
-      // Prepare the renamed file for upload
       final fileToUpload = File(newPath);
       final uri = Uri.parse('$baseUrl/mood/analyze_audio_mood');
 
@@ -107,38 +109,45 @@ class _RecordingDialogState extends State<RecordingDialog> {
           'file',
           fileToUpload.path,
           contentType: MediaType('audio', 'wav'),
+          // contentType: MediaType('audio', 'x-wav'), 
         ));
 
-      // Send the request
       final response = await request.send();
 
-      // Read response
       final responseBody = await http.Response.fromStream(response);
 
       if (response.statusCode == 200) {
-        // Success — parse songs or show confirmation
-        print("✅ Audio sent successfully");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Audio successfully sent and analyzed!')),
-        );
+        debugPrint("✅ Audio sent successfully");
+        final Map<String, dynamic> responseData = jsonDecode(responseBody.body);
+        if (responseData.containsKey("songs") &&
+            responseData["songs"] is List) {
+          final List<dynamic> playlistsData = responseData["songs"];
 
-        // Optionally: handle response body
-        print(responseBody.body);
+          // Save the response to the provider
+          final trackProvider =
+              Provider.of<TrackProvider>(context, listen: false);
+          trackProvider.setTracks(playlistsData.cast<Map<String, dynamic>>());
+
+          debugPrint("Tracks saved successfully");
+        } else {
+          debugPrint("⚠️ Response: ${responseBody.body}");
+          throw Exception("Invalid response format: 'playlists' key not found");
+        }
       } else {
-        print("❌ Server returned an error: ${response.statusCode}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send audio: ${responseBody.body}')),
-        );
+        throw Exception("Failed to send data");
       }
-
-      // Pop with the new file path
-      Navigator.of(context).pop(newPath);
     } catch (e) {
-      print("❌ Exception during saving/sending: $e");
+      debugPrint("❌ Exception during saving/sending: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
+
+    if (!context.mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GeneratedPlaylist()),
+    );
   }
 
   Future<void> _discardRecording() async {
