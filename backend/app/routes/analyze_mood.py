@@ -1,3 +1,4 @@
+from io import BytesIO
 import os
 from typing import Dict, Optional
 from fastapi import APIRouter, HTTPException, File, UploadFile
@@ -158,19 +159,32 @@ async def analyze_audio_mood(file: UploadFile = File(...)):
     temp_file_path = f"temp_{file.filename}"
 
     try:     
-        # Step 1: Save uploaded file
+        # Step 1: Save uploaded file as raw bytes
         try:
+            file_bytes = await file.read()  # Read bytes from UploadFile
             with open(temp_file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
+                buffer.write(file_bytes)
             print("✅ File saved successfully.")
         except Exception as e:
             raise Exception(f"Error saving uploaded audio file: {str(e)}")
 
+        # TEMPORARY OVERRIDE: Load predefined test WAV file instead of uploaded file
+        # try:
+        #     test_file_path = os.path.join( "wow.wav")
+        #     with open(test_file_path, "rb") as f:
+        #         file_bytes = f.read()
+        #     print(f"🎧 Using test WAV file at: {test_file_path}")
+        # except Exception as e:
+        #     raise Exception(f"Error reading test audio file: {str(e)}")
+
+        with open(temp_file_path, "wb") as buffer:
+            buffer.write(file_bytes)
+
+
         # Step 2+3: Send to model service and get emotion
         try:
-            with open(temp_file_path, "rb") as audio_file:
-                files = {"file": (file.filename, audio_file, file.content_type)}
-                response = requests.post(MOOD_MODEL_SERVICE_URL, files=files)
+            files = {"file": (file.filename, BytesIO(file_bytes), file.content_type)}
+            response = requests.post(MOOD_MODEL_SERVICE_URL, files=files)
 
             if response.status_code != 200:
                 raise Exception(f"Model service returned error: {response.status_code} - {response.text}")

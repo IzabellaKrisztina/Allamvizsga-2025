@@ -34,12 +34,15 @@ class _RecordingDialogState extends State<RecordingDialog> {
   @override
   void initState() {
     super.initState();
-    //_startRecording();
+    debugPrint("🎬 RecordingDialog initialized");
   }
 
   Future<void> _startRecording() async {
+    debugPrint("🎤 Attempting to start recording...");
+
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
+      debugPrint("❌ Microphone permission not granted");
       Navigator.of(context).pop();
       return;
     }
@@ -47,6 +50,7 @@ class _RecordingDialogState extends State<RecordingDialog> {
     final directory = await getApplicationDocumentsDirectory();
     final path =
         '${directory.path}/recording_${DateTime.now().millisecondsSinceEpoch}.wav';
+    debugPrint("📁 Recording file path: $path");
 
     await _recorder.start(
       const RecordConfig(
@@ -57,7 +61,7 @@ class _RecordingDialogState extends State<RecordingDialog> {
       path: path,
     );
 
-    await _recorderController.record(path: path);
+    debugPrint("✅ Recording started");
 
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
       setState(() {
@@ -73,10 +77,22 @@ class _RecordingDialogState extends State<RecordingDialog> {
   }
 
   Future<void> _stopRecording() async {
+    debugPrint("⏹️ Stopping recording...");
+
     await _recorder.stop();
-    await _recorderController.stop();
     await Future.delayed(Duration(milliseconds: 500));
     _timer?.cancel();
+
+    if (_filePath != null) {
+      final recordedFile = File(_filePath!);
+      if (await recordedFile.exists()) {
+        final length = await recordedFile.length();
+        debugPrint("🎙️ Recorded file path: $_filePath");
+        debugPrint("🎙️ Recorded file size: $length bytes");
+      } else {
+        debugPrint("⚠️ Recorded file does not exist");
+      }
+    }
 
     setState(() {
       _isRecording = false;
@@ -99,22 +115,29 @@ class _RecordingDialogState extends State<RecordingDialog> {
     final recordedFile = File(_filePath!);
 
     try {
+      debugPrint("📦 Renaming file to: $newPath");
+
       await recordedFile.rename(newPath);
 
       final fileToUpload = File(newPath);
+      final uploadSize = await fileToUpload.length();
+      debugPrint("⬆️ File ready to upload: $newPath (${uploadSize} bytes)");
+
       final uri = Uri.parse('$baseUrl/mood/analyze_audio_mood');
+      debugPrint("🌐 Sending POST to: $uri");
 
       final request = http.MultipartRequest('POST', uri)
         ..files.add(await http.MultipartFile.fromPath(
           'file',
           fileToUpload.path,
           contentType: MediaType('audio', 'wav'),
-          // contentType: MediaType('audio', 'x-wav'), 
+          // contentType: MediaType('audio', 'x-wav'),
         ));
 
       final response = await request.send();
-
       final responseBody = await http.Response.fromStream(response);
+      debugPrint("📥 Server responded with: ${response.statusCode}");
+      debugPrint("📥 Response body: ${responseBody.body}");
 
       if (response.statusCode == 200) {
         debugPrint("✅ Audio sent successfully");
@@ -159,17 +182,23 @@ class _RecordingDialogState extends State<RecordingDialog> {
   }
 
   Future<void> _playRecording() async {
-    if (_filePath == null) return;
+    if (_filePath == null) {
+      debugPrint("⚠️ No file path to play from");
+      return;
+    }
+
+    debugPrint("▶️ Playing recording: $_filePath");
 
     _playerController = PlayerController();
     await _playerController!.preparePlayer(path: _filePath!);
-    _playerController!.startPlayer();
+    await _playerController!.startPlayer();
 
     setState(() {
       _isPlaying = true;
     });
 
     _playerController!.onCompletion.listen((event) {
+      debugPrint("⏹️ Playback completed");
       setState(() {
         _isPlaying = false;
       });
@@ -177,6 +206,8 @@ class _RecordingDialogState extends State<RecordingDialog> {
   }
 
   Future<void> _stopPlayback() async {
+    debugPrint("⏹️ Manually stopping playback");
+
     await _playerController?.stopPlayer();
     setState(() {
       _isPlaying = false;
@@ -185,6 +216,8 @@ class _RecordingDialogState extends State<RecordingDialog> {
 
   @override
   void dispose() {
+    debugPrint("🧹 Disposing RecordingDialog");
+    
     _recorderController.dispose();
     _recorder.dispose();
     _timer?.cancel();
