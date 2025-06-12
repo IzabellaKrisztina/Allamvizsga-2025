@@ -21,14 +21,17 @@ class SurveyTemplate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String backgroundColorHex = COLOR_OLIVINE;
+    const String backgroundColorHex = SPACE_CADET;
     final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String buttonHex = COLOR_CHARCOAL;
+    const String buttonHex = JORDY_BLUE;
     final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
 
-    const String textHex = COLOR_ASH_GRAY;
+    const String textHex = GHOST_WHITE;
     final Color textColor = Color(int.parse('0xFF$textHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
 
     return Scaffold(
       appBar: AppBar(
@@ -85,7 +88,7 @@ class SurveyTemplate extends StatelessWidget {
                     backgroundColor: buttonColor,
                   ),
                   child: Text(currentPage < totalPage - 1 ? 'Next' : 'Submit',
-                      style: TextStyle(color: textColor, fontSize: 20)),
+                      style: TextStyle(color: secondaryColor, fontSize: 20)),
                 ),
               ],
             ),

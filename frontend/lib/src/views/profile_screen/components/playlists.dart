@@ -22,33 +22,62 @@ class _PlaylistsState extends State<Playlists> {
   Widget build(BuildContext context) {
     final playlists = Provider.of<PlaylistProvider>(context).playlists;
 
-    const String boxHex = COLOR_ASH_GRAY;
-    final Color boxColor = Color(int.parse('0xFF$boxHex'));
+    const String backgroundColorHex = SPACE_CADET;
+    final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String textHex = COLOR_CHARCOAL;
-    final Color textColor = Color(int.parse('0xFF$textHex'));
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+    const String accentColorHex = ROSY_BROWN;
+    final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           "Recommended Playlists",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: buttonColor,
+          ),
         ),
         const SizedBox(height: 10),
         playlists.isEmpty
-            ? const Center(child: Text("No playlists found"))
+            ? Center(
+                child: Text(
+                  "No playlists found",
+                  style: TextStyle(fontSize: 16, color: textColor),
+                ),
+              )
             : Column(
                 children: playlists.map((playlist) {
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent
+                          .withOpacity(0.3), // same as your reference
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: secondaryColor.withOpacity(0.1),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    color: boxColor,
                     child: ListTile(
+                      contentPadding: EdgeInsets.zero,
                       leading: ClipRRect(
-                        borderRadius:
-                            BorderRadius.circular(10), // Rounded image corners
+                        borderRadius: BorderRadius.circular(10),
                         child: Image.network(
                           playlist["image_url"],
                           width: 50,
@@ -58,26 +87,25 @@ class _PlaylistsState extends State<Playlists> {
                       ),
                       title: Text(
                         playlist["name"],
-                        maxLines: 2, // Limits to 2 lines
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: textColor, // Title color
+                          color: buttonColor,
                         ),
                       ),
                       subtitle: Text(
                         playlist["description"],
-                        maxLines: 2, // Limits to 2 lines
-                        overflow: TextOverflow.ellipsis, // Truncates with "..."
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14,
-                          color: textColor, // Slightly dimmed text
+                          color: textColor,
                         ),
                       ),
                       onTap: () {
-                        // Open playlist URL
-                        // You can use url_launcher package for this
+                        // TODO: Handle tap (e.g., open playlist URL)
                       },
                     ),
                   );

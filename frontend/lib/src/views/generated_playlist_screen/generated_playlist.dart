@@ -22,7 +22,20 @@ class _GeneratedPlaylistState extends State<GeneratedPlaylist> {
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = Color(int.parse('0xFF$COLOR_OLIVINE'));
+    const String backgroundColorHex = SPACE_CADET;
+    final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
+
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+    const String accentColorHex = ROSY_BROWN;
+    final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
 
     return Scaffold(
       body: Container(
@@ -44,15 +57,23 @@ class _GeneratedPlaylistState extends State<GeneratedPlaylist> {
                 itemBuilder: (context, index) {
                   final track = tracks[index];
 
-                  return Card(
-                    color: Color(int.parse('0xFF$COLOR_ASH_GRAY')),
-                    elevation: 6,
-                    margin: EdgeInsets.only(bottom: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: secondaryColor.withOpacity(0.1),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: ListTile(
-                      contentPadding: EdgeInsets.all(10),
+                      contentPadding: EdgeInsets.zero,
                       leading: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: Hero(
@@ -72,18 +93,19 @@ class _GeneratedPlaylistState extends State<GeneratedPlaylist> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-                          color: Color(int.parse('0xFF$COLOR_DARK_PURPLE')),
+                          color: buttonColor,
                         ),
                       ),
                       subtitle: Text(
                         track["artist_name"],
                         style: TextStyle(
-                          color: Color(int.parse('0xFF$COLOR_DARK_PURPLE')),
+                          fontSize: 14,
+                          color: textColor,
                         ),
                       ),
                       trailing: Icon(
                         Icons.play_arrow,
-                        color: Color(int.parse('0xFF$COLOR_DARK_PURPLE')),
+                        color: buttonColor,
                         size: 28,
                       ),
                       onTap: () {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sound_mind/src/views/register_screen/register_screen.dart';
 
-Row LoginFooter(BuildContext context, Color buttonColor) {
+Row LoginFooter(BuildContext context, Color buttonColor, Color textColor) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
@@ -9,6 +9,7 @@ Row LoginFooter(BuildContext context, Color buttonColor) {
         'Don\'t have an account?',
         style: TextStyle(
           fontWeight: FontWeight.bold,
+          color: textColor,
         ),
       ),
       SizedBox(

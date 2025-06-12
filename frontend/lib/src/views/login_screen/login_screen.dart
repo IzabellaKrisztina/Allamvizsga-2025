@@ -28,11 +28,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const String backgroundColorHex = COLOR_OLIVINE;
+    const String backgroundColorHex = SPACE_CADET;
     final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String buttonHex = COLOR_CHARCOAL;
+    const String buttonHex = JORDY_BLUE;
     final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
@@ -76,7 +82,10 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(
                 'Sign In',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 40,
+                    color: textColor),
               ),
               SizedBox(
                 height: 48.0,
@@ -89,6 +98,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   decoration: kTextFieldDecoration(
                     hintText: 'Enter your username',
+                  ).copyWith(
+                    // filled: true,
+                    // fillColor: secondaryColor.withOpacity(0.5),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: buttonColor),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: buttonColor, width: 2.0), //
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                  ),
+                  style: TextStyle(
+                    color: textColor,
                   )),
               SizedBox(
                 height: 8.0,
@@ -99,13 +123,30 @@ class _LoginScreenState extends State<LoginScreen> {
                 onChanged: (value) {
                   password = value;
                 },
-                decoration: kTextFieldDecoration(hintText: 'Enter password'),
+                decoration:
+                    kTextFieldDecoration(hintText: 'Enter password').copyWith(
+                  // filled: true,
+                  // fillColor: secondaryColor.withOpacity(0.5),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor, width: 2.0),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  hintStyle: TextStyle(color: Colors.grey[600]),
+                ),
+                style: TextStyle(
+                  color: textColor,
+                ),
               ),
               SizedBox(
                 height: 24.0,
               ),
               LoginButton(
                 colour: buttonColor,
+                textColor: secondaryColor,
                 title: 'Log in',
                 onPress: () async {
                   setState(() {
@@ -113,8 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   });
                   try {
                     var response = await http.post(
-                      Uri.parse(
-                          '$baseUrl/auth/login'),
+                      Uri.parse('$baseUrl/auth/login'),
                       headers: {"Content-Type": "application/json"},
                       body: jsonEncode({
                         "username": userName,
@@ -127,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       print("Login successful: ${data['access_token']}");
 
                       await authProvider.login(data['access_token']);
-                     
+
                       if (!context.mounted) return;
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -157,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 height: 24.0,
               ),
-              LoginFooter(context, buttonColor)
+              LoginFooter(context, buttonColor, textColor),
             ],
           ),
         ),

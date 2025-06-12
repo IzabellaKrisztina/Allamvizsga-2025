@@ -40,14 +40,20 @@ class ProfileScreen extends StatelessWidget {
     final registProvider = Provider.of<RegistProvider>(context);
     final username = _extractUsername(authProvider.token);
 
-    const String backgroundColorHex = COLOR_OLIVINE;
+    const String backgroundColorHex = SPACE_CADET;
     final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String textHex = COLOR_CHARCOAL;
-    final Color textColor = Color(int.parse('0xFF$textHex'));
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
 
-    const String buttonColorHex = COLOR_DARK_PURPLE;
-    final Color buttonColor = Color(int.parse('0xFF$buttonColorHex'));
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+    const String accentColorHex = ROSY_BROWN;
+    final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -68,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
             ? [
                 // Show exit button only if logged in
                 IconButton(
-                  icon: Icon(Icons.exit_to_app, color: buttonColor, size: 30),
+                  icon: Icon(Icons.exit_to_app, color: accentColor, size: 30),
                   onPressed: () {
                     authProvider.logout();
                     registProvider.setRegistered(false);
@@ -102,7 +108,7 @@ class ProfileScreen extends StatelessWidget {
                   username ?? "Unknown User"), // Profile image with edit option
           const SizedBox(height: 20),
           UserInfo(name: username ?? "Unknown User"), // User info
-          const SizedBox(height: 20),
+          const SizedBox(height: 40),
           FavouriteSongs(), // Favorite songs list
           const SizedBox(height: 20),
           Playlists(), // User playlists
@@ -114,11 +120,20 @@ class ProfileScreen extends StatelessWidget {
 
   /// ✅ Guest mode UI when user is not logged in
   Widget _buildGuestMode(BuildContext context) {
-    const String textHex = COLOR_CHARCOAL;
-    final Color textColor = Color(int.parse('0xFF$textHex'));
-
-    const String backgroundColorHex = COLOR_ASH_GRAY;
+    const String backgroundColorHex = SPACE_CADET;
     final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
+
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+    const String accentColorHex = ROSY_BROWN;
+    final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
 
     return Center(
       child: SizedBox(
@@ -146,8 +161,8 @@ class ProfileScreen extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: textColor, // Button color
-                foregroundColor: backgroundColor, // Text color
+                backgroundColor: buttonColor, // Button color
+                foregroundColor: buttonColor, // Text color
                 elevation: 6, // Shadow effect
                 padding: const EdgeInsets.symmetric(
                     horizontal: 24, vertical: 14), // Padding inside button
@@ -156,11 +171,12 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 shadowColor: Colors.black45, // Shadow color
               ),
-              child: const Text(
+              child: Text(
                 'Go to login screen',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: textColor,
                 ),
               ),
             ),

@@ -88,9 +88,20 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = Color(int.parse('0xFF$COLOR_OLIVINE'));
-    final Color textColor = Color(int.parse('0xFF$COLOR_DARK_PURPLE'));
-    final Color lightGreenColor = Color(int.parse('0xFF$COLOR_ASH_GRAY'));
+    const String backgroundColorHex = SPACE_CADET;
+    final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
+
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+    const String accentColorHex = ROSY_BROWN;
+    final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
 
     String releaseYear = widget.releaseDates[_currentIndex].split('-')[0];
 
@@ -135,7 +146,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 widget.trackNames[_currentIndex],
                 style: TextStyle(
                   fontSize: 18,
-                  color: textColor,
+                  color: buttonColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -158,8 +169,8 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
 
             // Song Progress Slider
             Slider(
-              activeColor: textColor,
-              inactiveColor: lightGreenColor,
+              activeColor: buttonColor,
+              inactiveColor: textColor,
               min: 0,
               max: _duration.inSeconds.toDouble(),
               value:

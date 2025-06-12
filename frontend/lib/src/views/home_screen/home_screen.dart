@@ -9,7 +9,6 @@ import 'package:sound_mind/src/models/track_provider.dart';
 import 'package:sound_mind/src/views/home_screen/components/user_navbar.dart';
 import 'package:sound_mind/src/views/home_screen/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import '../generated_playlist_screen/generated_playlist.dart';
 import 'components/wheel.dart';
 
@@ -95,17 +94,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const String backgroundColorHex = COLOR_OLIVINE;
+    const String backgroundColorHex = SPACE_CADET;
     final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String textHex = COLOR_CHARCOAL;
-    final Color textColor = Color(int.parse('0xFF$textHex'));
-
-    const String buttonHex = COLOR_DARK_PURPLE;
+    const String buttonHex = JORDY_BLUE;
     final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
 
-    const String lightGreenHex = COLOR_ASH_GRAY;
-    final Color lightGreenColor = Color(int.parse('0xFF$lightGreenHex'));
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
 
     final trackProvider = Provider.of<TrackProvider>(context, listen: false);
 
@@ -131,7 +130,11 @@ class _HomeScreenState extends State<HomeScreen> {
               Center(
                 child: Text(
                   "Welcome to the Home Screen!",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -265,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: lightGreenColor,
+                          color: textColor,
                         ),
                       ),
                     ),
@@ -288,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Icon(
                         Icons.mic, // Use the microphone icon
                         size: 27,
-                        color: lightGreenColor,
+                        color: textColor,
                       ),
                     ),
                   ],

@@ -75,8 +75,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       return;
     }
 
-    final String apiUrl =
-        "$baseUrl/users/$username";
+    final String apiUrl = "$baseUrl/users/$username";
 
     setState(() {
       _isLoading = true;
@@ -113,11 +112,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final registProvider = Provider.of<RegistProvider>(context);
 
-    const String backgroundColorHex = COLOR_OLIVINE;
+    const String backgroundColorHex = SPACE_CADET;
     final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String currentDayHex = COLOR_CHARCOAL;
-    final Color currentDayColor = Color(int.parse('0xFF$currentDayHex'));
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+    const String accentColorHex = ROSY_BROWN;
+    final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
 
     return Scaffold(
       appBar: AppBar(
@@ -125,13 +133,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
         backgroundColor: backgroundColor,
         title: Text(
           'Calendar Screen',
-          style: TextStyle(color: currentDayColor),
+          style: TextStyle(color: textColor),
         ),
         centerTitle: true,
         titleTextStyle: TextStyle(
           fontSize: 25,
           fontFamily: 'Moderustic',
-          color: currentDayColor,
+          color: textColor,
         ),
       ),
       backgroundColor: backgroundColor,
@@ -144,14 +152,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   /// ✅ Calendar UI for authenticated users
   Widget _buildCalendar() {
-    const String selectedDayHex = COLOR_DARK_PURPLE;
-    final Color selectedDayColor = Color(int.parse('0xFF$selectedDayHex'));
+    const String backgroundColorHex = SPACE_CADET;
+    final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String currentDayHex = COLOR_CHARCOAL;
-    final Color currentDayColor = Color(int.parse('0xFF$currentDayHex'));
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
 
-    const String calendarHex = COLOR_ASH_GRAY;
-    final Color calendarColor = Color(int.parse('0xFF$calendarHex'));
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+    const String accentColorHex = ROSY_BROWN;
+    final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
 
     return Column(
       children: <Widget>[
@@ -159,11 +173,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Container(
             decoration: BoxDecoration(
-              color: calendarColor,
-              borderRadius: BorderRadius.circular(16),
+              color: Colors.transparent.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: secondaryColor.withOpacity(0.1),
                   blurRadius: 8,
                   spreadRadius: 2,
                   offset: Offset(0, 4),
@@ -188,29 +202,27 @@ class _CalendarScreenState extends State<CalendarScreen> {
               },
               calendarStyle: CalendarStyle(
                 selectedDecoration: BoxDecoration(
-                  color: selectedDayColor,
+                  color: accentColor,
                   shape: BoxShape.circle,
                 ),
                 todayDecoration: BoxDecoration(
-                  color: currentDayColor,
+                  color: buttonColor,
                   shape: BoxShape.circle,
                 ),
-                weekendTextStyle: const TextStyle(color: Colors.red),
+                weekendTextStyle: TextStyle(color: Colors.red),
                 outsideDaysVisible: false,
-                defaultTextStyle: TextStyle(color: currentDayColor),
+                defaultTextStyle: TextStyle(color: textColor),
               ),
               headerStyle: HeaderStyle(
                 titleCentered: true,
                 formatButtonVisible: false,
                 titleTextStyle: TextStyle(
-                  color: currentDayColor,
+                  color: buttonColor,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
-                leftChevronIcon:
-                    Icon(Icons.chevron_left, color: currentDayColor),
-                rightChevronIcon:
-                    Icon(Icons.chevron_right, color: currentDayColor),
+                leftChevronIcon: Icon(Icons.chevron_left, color: buttonColor),
+                rightChevronIcon: Icon(Icons.chevron_right, color: buttonColor),
               ),
               onPageChanged: (focusedDay) {
                 _focusedDay = focusedDay;
@@ -237,7 +249,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       : Text(
                           "User's XP for the day: ${userXp ?? 'No XP data'}",
                           style: TextStyle(
-                            color: currentDayColor,
+                            color: textColor,
                             fontSize: 20,
                           ),
                         ),
@@ -249,11 +261,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: calendarColor,
-                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.transparent.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: secondaryColor.withOpacity(0.1),
                           blurRadius: 8,
                           spreadRadius: 2,
                           offset: Offset(0, 4),
@@ -274,11 +286,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   /// ✅ Guest mode UI when user is not logged in
   Widget _buildGuestMode(BuildContext context) {
-    const String textHex = COLOR_CHARCOAL;
-    final Color textColor = Color(int.parse('0xFF$textHex'));
-
-    const String backgroundColorHex = COLOR_ASH_GRAY;
+    const String backgroundColorHex = SPACE_CADET;
     final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
+
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+    const String accentColorHex = ROSY_BROWN;
+    final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
 
     return Center(
       child: SizedBox(
@@ -306,8 +327,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: textColor, // Button color
-                foregroundColor: backgroundColor, // Text color
+                backgroundColor: buttonColor, // Button color
+                foregroundColor: buttonColor, // Text color
                 elevation: 6, // Shadow effect
                 padding: const EdgeInsets.symmetric(
                     horizontal: 24, vertical: 14), // Padding inside button
@@ -316,11 +337,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 shadowColor: Colors.black45, // Shadow color
               ),
-              child: const Text(
+              child: Text(
                 'Go to login screen',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: textColor,
                 ),
               ),
             ),

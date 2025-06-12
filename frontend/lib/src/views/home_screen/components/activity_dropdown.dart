@@ -35,14 +35,20 @@ class _ActivitySelectionState extends State<ActivitySelection> {
     final wheelController =
         Provider.of<WheelController>(context, listen: false);
 
-    const String darkBlueColorHex = COLOR_CHARCOAL;
-    final Color darkBlueColor = Color(int.parse('0xFF$darkBlueColorHex'));
+    const String backgroundColorHex = SPACE_CADET;
+    final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String lightGreenColorHex = COLOR_ASH_GRAY;
-    final Color lightGreenColor = Color(int.parse('0xFF$lightGreenColorHex'));
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
 
     return PopupMenuButton<String>(
-      color: darkBlueColor,
+      color: buttonColor,
       onSelected: (activity) {
         setState(() {
           wheelController.updateActivity(activity);
@@ -55,7 +61,7 @@ class _ActivitySelectionState extends State<ActivitySelection> {
             enabled: false,
             child: Container(
               color:
-                  darkBlueColor, // Set the background color of the item to dark blue
+                  buttonColor, // Set the background color of the item to dark blue
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: 10.0, horizontal: 15.0),
@@ -63,7 +69,7 @@ class _ActivitySelectionState extends State<ActivitySelection> {
                   'Select an Activity',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: lightGreenColor, // Set text color to light green
+                    color: secondaryColor, // Set text color to light green
                   ),
                 ),
               ),
@@ -74,7 +80,7 @@ class _ActivitySelectionState extends State<ActivitySelection> {
             child: Container(
               height: 150,
               width: 300, // Set the height for the dropdown container
-              color: darkBlueColor, // Background color for the dropdown
+              color: buttonColor, // Background color for the dropdown
               child: ListWheelScrollView.useDelegate(
                 itemExtent: 50, // Each genre height
                 childDelegate: ListWheelChildBuilderDelegate(
@@ -84,7 +90,7 @@ class _ActivitySelectionState extends State<ActivitySelection> {
                         title: Text(
                           activites[index],
                           style: TextStyle(
-                            color: lightGreenColor, // Text color for each item
+                            color: textColor, // Text color for each item
                           ),
                         ),
                         onTap: () {
@@ -109,21 +115,22 @@ class _ActivitySelectionState extends State<ActivitySelection> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: darkBlueColor, // Background color for the dropdown button
+          borderRadius: BorderRadius.circular(12),
+          color: buttonColor, // Background color for the dropdown button
         ),
         child: Row(
           children: [
             Text(
               selectedActivity ?? 'Choose Activity',
               style: TextStyle(
-                  fontSize: 16,
-                  color: lightGreenColor), // Text color for the button
+                fontSize: 16,
+                color: secondaryColor,
+              ), // Text color for the button
             ),
             Spacer(),
             Icon(
               Icons.arrow_drop_down,
-              color: lightGreenColor, // Icon color
+              color: secondaryColor, // Icon color
             ),
           ],
         ),

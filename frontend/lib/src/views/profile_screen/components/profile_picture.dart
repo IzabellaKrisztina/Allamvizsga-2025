@@ -48,8 +48,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
     if (!authProvider.isAuthenticated) return;
 
     final String token = authProvider.token!;
-    final String apiUrl =
-        "$baseUrl/users/${widget.name}";
+    final String apiUrl = "$baseUrl/users/${widget.name}";
 
     setState(() {
       _isLoading = true;
@@ -106,8 +105,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
 
     final String token = authProvider.token!;
     final String username = "your-username"; // Replace dynamically
-    final String apiUrl =
-        "$baseUrl/users/$username";
+    final String apiUrl = "$baseUrl/users/$username";
 
     setState(() {
       _isLoading = true;
@@ -152,40 +150,41 @@ class _ProfilePictureState extends State<ProfilePicture> {
 
   @override
   Widget build(BuildContext context) {
-    const String textHex = COLOR_CHARCOAL;
-    final Color textColor = Color(int.parse('0xFF$textHex'));
+    final Color textColor = Color(int.parse('0xFF$GHOST_WHITE'));
+    final Color accentColor = Color(int.parse('0xFF$ROSY_BROWN'));
+    final Color borderColor = Color(int.parse('0xFF$JORDY_BLUE'));
+
+    // Determine image source
+    ImageProvider imageProvider;
+    if (_decodedBase64Image != null) {
+      imageProvider = MemoryImage(_decodedBase64Image!);
+    } else if (_profileImageUrl != null && _profileImageUrl!.isNotEmpty) {
+      imageProvider = NetworkImage(_profileImageUrl!);
+    } else if (_image != null) {
+      imageProvider = FileImage(_image!);
+    } else {
+      imageProvider = AssetImage("assets/images/default_profile.webp");
+    }
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _isLoading
-            ? CircularProgressIndicator()
-            : CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.grey[300],
-                backgroundImage: _decodedBase64Image != null
-                    ? MemoryImage(_decodedBase64Image!) // Base64 Image
-                    : (_profileImageUrl != null && _profileImageUrl!.isNotEmpty
-                        ? NetworkImage(_profileImageUrl!) // Normal URL Image
-                        : (_image != null
-                                ? FileImage(_image!) // Picked Image
-                                : AssetImage(
-                                    "assets/images/default_profile.webp"))
-                            as ImageProvider? // Default Fallback
-                    ),
-                child:
-                    (_profileImageUrl == null || _profileImageUrl!.isEmpty) &&
-                            _image == null
-                        ? Image.asset(
-                            "assets/images/default_profile.webp") // Default
-                        : null,
+            ? CircularProgressIndicator(color: accentColor)
+            : GestureDetector(
+                onTap: _pickImage, // 👈 tap on avatar triggers picker
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: borderColor, width: 3),
+                  ),
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage: imageProvider,
+                  ),
+                ),
               ),
-        TextButton(
-          onPressed: _pickImage,
-          child: Text(
-            "Edit Profile Picture",
-            style: TextStyle(color: textColor),
-          ),
-        ),
       ],
     );
   }

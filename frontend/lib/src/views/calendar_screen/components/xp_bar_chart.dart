@@ -3,14 +3,20 @@ import 'package:flutter/material.dart';
 
 import '../../../../constants/color_list.dart';
 
-const String barHex = COLOR_DARK_PURPLE;
-final Color barColor = Color(int.parse('0xFF$barHex'));
+const String backgroundColorHex = SPACE_CADET;
+final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-const String textHex = COLOR_CHARCOAL;
-final Color textColor = Color(int.parse('0xFF$textHex'));
+const String buttonHex = JORDY_BLUE;
+final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
 
-const String calendarHex = COLOR_ASH_GRAY;
-final Color calendarColor = Color(int.parse('0xFF$calendarHex'));
+const String textColorHex = GHOST_WHITE;
+final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+const String secondaryColorHex = OXFORD_BLUE;
+final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+const String accentColorHex = ROSY_BROWN;
+final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
 
 class XpBarChart extends StatelessWidget {
   @override
@@ -26,7 +32,15 @@ class XpBarChart extends StatelessWidget {
             BarChartData(
               barGroups: _getBarGroups(),
               borderData: FlBorderData(show: false),
-              gridData: FlGridData(show: false),
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                getDrawingHorizontalLine: (value) => FlLine(
+                  color: Colors.white24,
+                  strokeWidth: 1,
+                  dashArray: [5, 5],
+                ),
+              ),
               groupsSpace: 4, // Bars are closer together
               titlesData: FlTitlesData(
                 leftTitles: AxisTitles(
@@ -40,7 +54,7 @@ class XpBarChart extends StatelessWidget {
                           padding: const EdgeInsets.only(right: 1.0),
                           child: Text(
                             '${value.toInt()} min',
-                            style: TextStyle(fontSize: 12),
+                            style: TextStyle(fontSize: 12, color: textColor),
                             textAlign: TextAlign.right,
                           ),
                         );
@@ -61,7 +75,10 @@ class XpBarChart extends StatelessWidget {
                     getTitlesWidget: (value, meta) {
                       return Text(
                         _formatHour(value.toInt()),
-                        style: TextStyle(fontSize: 12),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: textColor,
+                        ),
                       );
                     },
                   ),
@@ -105,7 +122,7 @@ class XpBarChart extends StatelessWidget {
           barRods: [
             BarChartRodData(
               toY: minuteData[i].toDouble(),
-              color: barColor,
+              color: buttonColor,
               width: 8, // Slightly thinner bars
               borderRadius: BorderRadius.circular(4),
             ),

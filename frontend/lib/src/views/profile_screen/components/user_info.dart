@@ -8,8 +8,9 @@ class UserInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String textHex = COLOR_CHARCOAL;
-    final Color textColor = Color(int.parse('0xFF$textHex'));
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
     return Column(
       children: [
         Text(
@@ -17,7 +18,7 @@ class UserInfo extends StatelessWidget {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: textColor,
+            color: buttonColor,
           ),
         ),
       ],

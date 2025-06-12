@@ -1,8 +1,8 @@
-  import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sound_mind/src/views/login_screen/login_screen.dart';
 
-Row RegisterFooter(BuildContext context, Color buttonColor) {
+Row RegisterFooter(BuildContext context, Color buttonColor, Color textColor) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
@@ -10,6 +10,7 @@ Row RegisterFooter(BuildContext context, Color buttonColor) {
         'Already have an account?',
         style: TextStyle(
           fontWeight: FontWeight.bold,
+          color: textColor,
         ),
       ),
       SizedBox(

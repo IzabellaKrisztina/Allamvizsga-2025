@@ -128,17 +128,17 @@ class _WheelState extends State<Wheel> {
 
   @override
   Widget build(BuildContext context) {
-    const String darkBlueColorHex = COLOR_CHARCOAL;
-    final Color darkBlueColor = Color(int.parse('0xFF$darkBlueColorHex'));
-
-    const String lightGreenColorHex = COLOR_ASH_GRAY;
-    final Color lightGreenColor = Color(int.parse('0xFF$lightGreenColorHex'));
-
-    const String sliderHex = COLOR_DARK_PURPLE;
-    final Color sliderColor = Color(int.parse('0xFF$sliderHex'));
-
-    const String backgroundColorHex = COLOR_OLIVINE;
+    const String backgroundColorHex = SPACE_CADET;
     final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
+
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
 
     return Consumer<WheelController>(
       builder: (context, wheelController, child) {
@@ -154,26 +154,26 @@ class _WheelState extends State<Wheel> {
                 children: [
                   Text(
                     '${(wheelController.progress * 288).toStringAsFixed(0)} XP',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24.0,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: textColor,
                     ),
                   ),
                 ],
               ),
-              backgroundColor: lightGreenColor,
-              progressColor: darkBlueColor,
+              backgroundColor: textColor,
+              progressColor: buttonColor,
             ),
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(5.0),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     "Please select your current mood:",
                     textAlign: TextAlign.start,
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: 20, color: textColor),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -213,16 +213,16 @@ class _WheelState extends State<Wheel> {
                     min: 0,
                     max: 4,
                     divisions: 4,
-                    activeColor: sliderColor,
-                    inactiveColor: lightGreenColor,
+                    activeColor: buttonColor,
+                    inactiveColor: textColor,
                     onChanged: (value) {
                       wheelController.updateSlider1(value.roundToDouble());
                     },
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     "Select Activity",
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: 20, color: textColor),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -233,9 +233,9 @@ class _WheelState extends State<Wheel> {
                   ),
                   const SizedBox(height: 20),
                   // User input for favorite artist
-                  const Text(
+                  Text(
                     "Who are your favorite artists?",
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: 20, color: textColor),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -243,29 +243,30 @@ class _WheelState extends State<Wheel> {
                       onChanged: (artist) {
                         wheelController.updateFavoriteArtist(artist);
                       },
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
-                        labelText: "Enter artist's name",
+                        labelText: "Enter artist's name...",
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              BorderSide(color: darkBlueColor, width: 4.0),
+                              BorderSide(color: buttonColor, width: 4.0),
                         ),
                         disabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide:
-                              BorderSide(color: darkBlueColor, width: 4.0),
+                              BorderSide(color: buttonColor, width: 4.0),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide:
-                              BorderSide(color: darkBlueColor, width: 4.0),
+                              BorderSide(color: buttonColor, width: 4.0),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide:
-                              BorderSide(color: darkBlueColor, width: 3.0),
+                              BorderSide(color: buttonColor, width: 3.0),
                         ),
-                        labelStyle: TextStyle(color: darkBlueColor),
+                        labelStyle: TextStyle(color: buttonColor),
                       ),
                     ),
                   ),

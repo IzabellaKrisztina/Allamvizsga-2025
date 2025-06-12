@@ -34,11 +34,14 @@ class _SurveyContentState extends State<SurveyContent> {
   Widget build(BuildContext context) {
     final surveyController = Provider.of<SurveyController>(context);
 
-    const String buttonHex = COLOR_CHARCOAL;
+    const String buttonHex = JORDY_BLUE;
     final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
 
-    const String textHex = COLOR_DARK_PURPLE;
+    const String textHex = GHOST_WHITE;
     final Color textColor = Color(int.parse('0xFF$textHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
 
     _textController.text = surveyController.getAnswer(widget.question) ?? '';
 

@@ -17,21 +17,24 @@ class _UserNavbarState extends State<UserNavbar> {
 
   @override
   Widget build(BuildContext context) {
-    const String navbarColorHex = COLOR_CHARCOAL;
-    final Color navbarColor = Color(int.parse('0xFF$navbarColorHex'));
+    const String backgroundColorHex = SPACE_CADET;
+    final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String itemColorHex = COLOR_ASH_GRAY;
-    final Color itemnColor = Color(int.parse('0xFF$itemColorHex'));
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String secondaryHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryHex'));
 
     return BottomAppBar(
-      color: navbarColor,
+      color: secondaryColor.withOpacity(0.4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           IconButton(
             icon: ColorFiltered(
               colorFilter: ColorFilter.mode(
-                itemnColor,
+                buttonColor,
                 BlendMode.srcIn,
               ),
               child: Image.asset(HOME_ICON),
@@ -52,7 +55,7 @@ class _UserNavbarState extends State<UserNavbar> {
           IconButton(
             icon: ColorFiltered(
               colorFilter: ColorFilter.mode(
-                itemnColor,
+                buttonColor,
                 BlendMode.srcIn,
               ),
               child: Image.asset(CALENDAR_ICON),
@@ -73,7 +76,7 @@ class _UserNavbarState extends State<UserNavbar> {
           IconButton(
             icon: ColorFiltered(
               colorFilter: ColorFilter.mode(
-                itemnColor,
+                buttonColor,
                 BlendMode.srcIn,
               ),
               child: Image.asset(USER_ICON),

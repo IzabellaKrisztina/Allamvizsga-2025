@@ -31,11 +31,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const String backgroundColorHex = COLOR_OLIVINE;
+    const String backgroundColorHex = SPACE_CADET;
     final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
 
-    const String buttonHex = COLOR_CHARCOAL;
+    const String buttonHex = JORDY_BLUE;
     final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
@@ -86,7 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 40,
-                    color: buttonColor),
+                    color: textColor),
               ),
               SizedBox(
                 height: 16.0,
@@ -99,6 +105,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 decoration: kTextFieldDecoration(
                   hintText: 'Add a username',
+                ).copyWith(
+                  // filled: true,
+                  // fillColor: secondaryColor.withOpacity(0.5),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor, width: 2.0), //
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  hintStyle: TextStyle(color: Colors.grey[600]),
+                ),
+                style: TextStyle(
+                  color: textColor,
                 ),
               ),
               SizedBox(
@@ -112,6 +133,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 decoration: kTextFieldDecoration(
                   hintText: 'Enter your email',
+                ).copyWith(
+                  // filled: true,
+                  // fillColor: secondaryColor.withOpacity(0.5),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor, width: 2.0), //
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  hintStyle: TextStyle(color: Colors.grey[600]),
+                ),
+                style: TextStyle(
+                  color: textColor,
                 ),
               ),
               SizedBox(
@@ -125,6 +161,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 decoration: kTextFieldDecoration(
                   hintText: 'Enter your password',
+                ).copyWith(
+                  // filled: true,
+                  // fillColor: secondaryColor.withOpacity(0.5),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor, width: 2.0), //
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  hintStyle: TextStyle(color: Colors.grey[600]),
+                ),
+                style: TextStyle(
+                  color: textColor,
                 ),
               ),
               SizedBox(
@@ -132,6 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               RegisterButton(
                 colour: buttonColor,
+                textColor: secondaryColor,
                 title: 'Register',
                 onPress: () async {
                   if (userName.isEmpty || email.isEmpty || password.isEmpty) {
@@ -235,7 +287,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 24.0,
               ),
               //TODO: ADD NAVIGATION TO REGISTER_FOOTER
-              RegisterFooter(context, buttonColor)
+              RegisterFooter(context, buttonColor, textColor),
             ],
           ),
         ),

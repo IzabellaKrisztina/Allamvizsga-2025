@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 
 class LoginButton extends StatelessWidget {
   const LoginButton(
-      {required this.colour, required this.title, required this.onPress});
+      {required this.colour,
+      required this.textColor,
+      required this.title,
+      required this.onPress});
 
   final Color colour;
+  final Color textColor;
   final String title;
   final void Function() onPress;
 
@@ -25,7 +29,8 @@ class LoginButton extends StatelessWidget {
           child: Text(
             title,
             style: TextStyle(
-              color: Colors.white,
+              color: textColor,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),

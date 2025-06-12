@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:sound_mind/constants/color_list.dart';
 import 'package:sound_mind/src/models/track_provider.dart';
 import 'package:sound_mind/src/views/generated_playlist_screen/generated_playlist.dart';
 
@@ -217,7 +218,7 @@ class _RecordingDialogState extends State<RecordingDialog> {
   @override
   void dispose() {
     debugPrint("🧹 Disposing RecordingDialog");
-    
+
     _recorderController.dispose();
     _recorder.dispose();
     _timer?.cancel();
@@ -228,132 +229,201 @@ class _RecordingDialogState extends State<RecordingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        top: 16,
-        left: 10,
-        right: 10,
+    const String backgroundColorHex = SPACE_CADET;
+    final Color backgroundColor = Color(int.parse('0xFF$backgroundColorHex'));
+
+    const String buttonHex = JORDY_BLUE;
+    final Color buttonColor = Color(int.parse('0xFF$buttonHex'));
+
+    const String textColorHex = GHOST_WHITE;
+    final Color textColor = Color(int.parse('0xFF$textColorHex'));
+
+    const String secondaryColorHex = OXFORD_BLUE;
+    final Color secondaryColor = Color(int.parse('0xFF$secondaryColorHex'));
+
+    const String accentColorHex = ROSY_BROWN;
+    final Color accentColor = Color(int.parse('0xFF$accentColorHex'));
+
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
+        ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 👇 Display instructions BEFORE and DURING recording (but not after)
-          if (!_showPostRecordingOptions)
-            Column(
-              children: [
-                Text(
-                  'Please say the following sentence out loud:',
-                  style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  '"Kids are talking by the door."',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
-
-          // 👇 Show duration and "Recording in progress..." only when recording
-          if (_isRecording)
-            Column(
-              children: [
-                Text(
-                  'Recording in progress...',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  _formatDuration(_recordDuration),
-                  style: TextStyle(fontSize: 24, color: Colors.red),
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
-
-          // 👇 Show waveform only during active recording
-          if (_isRecording)
-            AudioWaveforms(
-              enableGesture: false,
-              size: Size(MediaQuery.of(context).size.width, 100.0),
-              recorderController: _recorderController,
-              waveStyle: WaveStyle(
-                waveColor: Colors.blue,
-                extendWaveform: true,
-                showMiddleLine: false,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+          top: 16,
+          left: 10,
+          right: 10,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 👇 Display instructions BEFORE and DURING recording (but not after)
+            if (!_showPostRecordingOptions)
+              Column(
+                children: [
+                  Text(
+                    'Please say the following sentence out loud:',
+                    style: TextStyle(fontSize: 16, color: textColor),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    '"Kids are talking by the door."',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: buttonColor),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                ],
               ),
-            ),
 
-          SizedBox(height: 20),
+            // 👇 Show duration and "Recording in progress..." only when recording
+            if (_isRecording)
+              Column(
+                children: [
+                  Text(
+                    'Recording in progress...',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: textColor),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    _formatDuration(_recordDuration),
+                    style: TextStyle(fontSize: 24, color: accentColor),
+                  ),
+                  SizedBox(height: 20),
+                ],
+              ),
 
-          // 👇 START & STOP buttons BEFORE recording starts
-          if (!_recordingStarted && !_showPostRecordingOptions)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _startRecording,
-                  icon: Icon(Icons.mic),
-                  label: Text('Start'),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton.icon(
-                  onPressed: () =>
-                      Navigator.of(context).pop(), // Optional cancel
-                  icon: Icon(Icons.close),
-                  label: Text('Cancel'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                ),
-              ],
-            ),
+            // 👇 Show waveform only during active recording
+            // if (_isRecording)
+            //   AudioWaveforms(
+            //     enableGesture: false,
+            //     size: Size(MediaQuery.of(context).size.width, 100.0),
+            //     recorderController: _recorderController,
+            //     waveStyle: WaveStyle(
+            //       waveColor: Colors.blue,
+            //       extendWaveform: true,
+            //       showMiddleLine: false,
+            //     ),
+            //   ),
 
-          // 👇 STOP button only when actively recording
-          if (_isRecording)
-            ElevatedButton.icon(
-              onPressed: _stopRecording,
-              icon: Icon(Icons.stop),
-              label: Text('Stop'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            ),
+            SizedBox(height: 20),
 
-          // 👇 Post-recording options (rename, play, save, discard)
-          if (_showPostRecordingOptions) ...[
-            Text(
-              'Recorded Duration: ${_formatDuration(_recordDuration)}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 10),
-            TextField(
-              controller: _fileNameController,
-              decoration: InputDecoration(labelText: 'Rename file'),
-            ),
-            SizedBox(height: 10),
-            Wrap(
-              spacing: 5,
-              runSpacing: 5,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _isPlaying ? _stopPlayback : _playRecording,
-                  icon: Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
-                  label: Text(_isPlaying ? 'Stop' : 'Play'),
+            // 👇 START & STOP buttons BEFORE recording starts
+            if (!_recordingStarted && !_showPostRecordingOptions)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _startRecording,
+                    icon: Icon(Icons.mic, color: textColor),
+                    label: Text('Start', style: TextStyle(color: textColor)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  ElevatedButton.icon(
+                    onPressed: () =>
+                        Navigator.of(context).pop(), // Optional cancel
+                    icon: Icon(Icons.close, color: secondaryColor),
+                    label:
+                        Text('Cancel', style: TextStyle(color: secondaryColor)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accentColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                  ),
+                ],
+              ),
+
+            // 👇 STOP button only when actively recording
+            if (_isRecording)
+              ElevatedButton.icon(
+                onPressed: _stopRecording,
+                icon: Icon(Icons.stop, color: secondaryColor),
+                label: Text('Stop', style: TextStyle(color: secondaryColor)),
+                style: ElevatedButton.styleFrom(backgroundColor: accentColor),
+              ),
+
+            // 👇 Post-recording options (rename, play, save, discard)
+            if (_showPostRecordingOptions) ...[
+              Text(
+                'Recorded Duration: ${_formatDuration(_recordDuration)}',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: textColor),
+              ),
+              SizedBox(height: 30),
+              TextField(
+                controller: _fileNameController,
+                style: TextStyle(color: textColor),
+                decoration: InputDecoration(
+                  labelText: 'Rename file',
+                  labelStyle: TextStyle(color: buttonColor),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: buttonColor, width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                ElevatedButton.icon(
-                  onPressed: _saveRecording,
-                  icon: Icon(Icons.save),
-                  label: Text('Save'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: _discardRecording,
-                  icon: Icon(Icons.delete),
-                  label: Text('Discard'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                ),
-              ],
-            ),
+              ),
+              SizedBox(height: 40),
+              Wrap(
+                spacing: 5,
+                runSpacing: 5,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _isPlaying ? _stopPlayback : _playRecording,
+                    icon: Icon(_isPlaying ? Icons.stop : Icons.play_arrow,
+                        color: textColor),
+                    label: Text(_isPlaying ? 'Stop' : 'Play',
+                        style: TextStyle(color: textColor)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: _saveRecording,
+                    icon: Icon(Icons.save, color: textColor),
+                    label: Text('Save', style: TextStyle(color: textColor)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: _discardRecording,
+                    icon: Icon(Icons.delete, color: secondaryColor),
+                    label: Text('Discard',
+                        style: TextStyle(color: secondaryColor)),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: accentColor),
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
