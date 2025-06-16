@@ -108,6 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final trackProvider = Provider.of<TrackProvider>(context, listen: false);
 
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -273,27 +275,27 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     //const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (context) => RecordingDialog(),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        // padding:
-                        //     EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        padding: EdgeInsets.all(15),
-                        shape: CircleBorder(),
-                        backgroundColor: buttonColor,
+                    // ✅ Show mic button only if user is authenticated
+                    if (authProvider.isAuthenticated)
+                      ElevatedButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) => RecordingDialog(),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.all(15),
+                          shape: CircleBorder(),
+                          backgroundColor: buttonColor,
+                        ),
+                        child: Icon(
+                          Icons.mic,
+                          size: 27,
+                          color: textColor,
+                        ),
                       ),
-                      child: Icon(
-                        Icons.mic, // Use the microphone icon
-                        size: 27,
-                        color: textColor,
-                      ),
-                    ),
                   ],
                 ),
               ),
